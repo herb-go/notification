@@ -1,7 +1,7 @@
 package notificationfilter
 
 import "testing"
-import "github.com/herb-go/herb/notification"
+import "github.com/herb-go/notification"
 
 type userMaps map[string]string
 

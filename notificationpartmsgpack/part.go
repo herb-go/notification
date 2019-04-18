@@ -1,6 +1,6 @@
 package notificationpartmsgpack
 
-import "github.com/herb-go/herb/notification"
+import "github.com/herb-go/notification"
 import "github.com/vmihailenco/msgpack"
 
 var Marshal = func(v interface{}) ([]byte, error) {

@@ -1,6 +1,6 @@
 package notificationfilter
 
-import "github.com/herb-go/herb/notification"
+import "github.com/herb-go/notification"
 
 func Wrap(filter Filter, sender notification.Sender) *WrappedFilter {
 	return &WrappedFilter{

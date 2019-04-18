@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/herb-go/herb/notification"
+	"github.com/herb-go/notification"
 )
 
 func TestPart(t *testing.T) {
