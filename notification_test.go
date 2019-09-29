@@ -5,28 +5,16 @@ import (
 	"time"
 )
 
-type ChanSender struct {
-	ID string
-	C  chan *NotificationInstance
-}
-
-func (c *ChanSender) SendNotification(n *NotificationInstance) error {
-	c.C <- n
-	return nil
-}
-func (c *ChanSender) Name() string {
-	return c.ID
-}
-
 func newChanSender() *ChanSender {
 	id, err := DefaultIDGenerator()
 	if err != nil {
 		panic(err)
 	}
-	return &ChanSender{
-		ID: id,
-		C:  make(chan *NotificationInstance, 10),
-	}
+	s := NewChanSender()
+	s.ID = id
+	s.Size = 10
+	s.Start()
+	return s
 }
 
 func TestSend(t *testing.T) {
@@ -47,7 +35,9 @@ func TestSend(t *testing.T) {
 		t.Fatal(err)
 	}
 	unusedSender := newChanSender()
+	defer unusedSender.Stop()
 	sender := newChanSender()
+	defer sender.Stop()
 	err = DefaultService.RegisterSender("testtype", sender)
 	if err != nil {
 		t.Fatal(err)
@@ -130,8 +120,11 @@ func TestMutliSender(t *testing.T) {
 		t.Fatal(err)
 	}
 	unusedSender := newChanSender()
+	defer unusedSender.Stop()
 	sender := newChanSender()
+	defer sender.Stop()
 	sender2 := newChanSender()
+	defer sender2.Stop()
 	service := NewCommonService()
 	service.RegisterInstancesBuilder(NotificationTypeDefault, NewCommonInstancesBuilder())
 	err = service.RegisterSender("testtype", sender)
