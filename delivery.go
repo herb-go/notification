@@ -1,7 +1,6 @@
 package notification
 
 type DeliveryServer interface {
-	DeliveryID() string
 	DeliveryType() string
 	Deliver(Content) (DeliveryStatus, error)
 }
