@@ -1,5 +1,15 @@
 package notification
 
 type DeliveryServer interface {
-	DeliveryNotificationInstance(*NotificationInstance) error
+	DeliveryID() string
+	DeliveryType() string
+	Deliver(Content) (DeliveryStatus, error)
 }
+
+type DeliveryStatus int64
+
+const (
+	DeliveryStatusFail = DeliveryStatus(iota)
+	DeliveryStatusSuccess
+	DeliveryStatusAbort
+)
