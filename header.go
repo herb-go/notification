@@ -2,8 +2,10 @@ package notification
 
 import (
 	"net/url"
+	"strings"
 )
 
+var HeaderNameNotifactionID = "nid"
 var HeaderNameTarget = "target"
 var HeaderNameBatch = "batch"
 var HeaderNameMessage = "mesasge"
@@ -12,10 +14,10 @@ var HeaderNameTopic = "topic"
 type Header map[string]string
 
 func (h Header) Set(name string, value string) {
-	h[name] = value
+	h[strings.ToLower(name)] = value
 }
 func (h Header) Get(name string) string {
-	return h[name]
+	return h[strings.ToLower(name)]
 }
 func (h Header) String() string {
 	v := url.Values{}

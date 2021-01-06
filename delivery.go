@@ -2,6 +2,7 @@ package notification
 
 type DeliveryServer interface {
 	DeliveryType() string
+	MustEscape(string) string
 	Deliver(Content) (DeliveryStatus, error)
 }
 
