@@ -10,11 +10,12 @@ var NopReceiptHanlder = func(nid string, eid string, reason string, status int32
 
 type Notifier struct {
 	DeliveryCenter
-	queue       Queue
-	c           chan int
-	OnExecution func(*Execution)
-	OnReceipt   func(nid string, eid string, status notification.DeliveryStatus, msg string)
-	OnError     func(error)
+	queue          Queue
+	c              chan int
+	OnNotification func(*notification.Notification)
+	OnExecution    func(*Execution)
+	OnReceipt      func(nid string, eid string, status notification.DeliveryStatus, msg string)
+	OnError        func(error)
 }
 
 func (n *Notifier) SetQueue(q Queue) {
@@ -65,7 +66,13 @@ func (notifier *Notifier) listen(c chan *Execution) {
 		}
 	}
 }
+
+func (notifier *Notifier) onNotification(n *notification.Notification) {
+	defer notifier.Recovery()
+	notifier.OnNotification(n)
+}
 func (notifier *Notifier) Notify(n *notification.Notification) error {
+	go notifier.OnNotification(n)
 	return notifier.queue.Push(n)
 }
 
