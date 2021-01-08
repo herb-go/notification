@@ -14,7 +14,7 @@ type Notifier struct {
 	c              chan int
 	OnNotification func(*notification.Notification)
 	OnExecution    func(*Execution)
-	OnReceipt      func(nid string, eid string, status notification.DeliveryStatus, msg string)
+	OnReceipt      func(*Receipt)
 	OnError        func(error)
 }
 
@@ -28,9 +28,9 @@ func (notifier *Notifier) Recovery() {
 		notifier.OnError(err)
 	}
 }
-func (notifier *Notifier) handleReceipt(nid string, eid string, status notification.DeliveryStatus, msg string) {
+func (notifier *Notifier) handleReceipt(r *Receipt) {
 	defer notifier.Recovery()
-	notifier.OnReceipt(nid, eid, status, msg)
+	notifier.OnReceipt(r)
 }
 
 func (notifier *Notifier) execute(e *Execution) {
@@ -42,18 +42,24 @@ func (notifier *Notifier) deliver(e *Execution) {
 	defer notifier.Recovery()
 	status, msg, err := notifier.deliverNotification(e.Notification)
 	if err != nil {
+		go notifier.OnError(err)
 		status = notification.DeliveryStatusFail
 		msg = err.Error()
 	}
 	nid := e.Notification.ID
 	eid := e.ExecutionID
-	go notifier.handleReceipt(nid, eid, status, msg)
+	r := NewReceipt()
+	r.NotificationID = nid
+	r.ExecutionID = eid
+	r.Status = status
+	r.Message = msg
+	go notifier.handleReceipt(r)
 	if status == notification.DeliveryStatusFail {
 		return
 	}
 	err = notifier.queue.Remove(nid)
 	if err != nil {
-		notifier.OnError(err)
+		go notifier.OnError(err)
 	}
 }
 func (notifier *Notifier) listen(c chan *Execution) {
