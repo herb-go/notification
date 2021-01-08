@@ -2,49 +2,32 @@ package notificationqueue
 
 import "github.com/herb-go/notification"
 
-var ExecuteStatusFail = int32(0)
-var ExecuteStatusSuccess = int32(1)
-var ExecuteStatusAbort = int32(2)
-
 type Notifier struct {
-	DraftReviewer  DraftReviewer
-	Queue          Queue
-	Draftbox       Draftbox
 	DeliveryCenter DeliveryCenter
-	OnExecution    func(*Execution)
-	OnError        func(error)
+	Queue          Queue
 	c              chan int
+	OnExecution    func(*Execution)
+	Recovery       func()
 }
 
-func (notifier *Notifier) Notify(n *notification.Notification) (bool, error) {
-	ok, err := notifier.DraftReviewer.ReviewDraft(n)
-	if err != nil {
-		return false, err
-	}
-	if ok {
-		return false, notifier.Draftbox.Draft(n)
-	}
-	err = notifier.Queue.Push(n)
-	return err == nil, err
-}
-
-func (notifier *Notifier) PublishDraft(nid string) (*notification.Notification, error) {
-	n, err := notifier.Draftbox.Discard(nid)
-	if err != nil {
-		return nil, err
-	}
-	return n, notifier.Queue.Push(n)
+func (notifier *Notifier) execute(e *Execution) {
+	defer notifier.Recovery()
+	notifier.OnExecution(e)
 }
 func (notifier *Notifier) listen(c chan *Execution) {
 	for {
 		select {
 		case e := <-c:
-			go notifier.OnExecution(e)
+			go notifier.execute(e)
 		case _ = <-notifier.c:
 			return
 		}
 	}
 }
+func (notifier *Notifier) Notify(n *notification.Notification) error {
+	return notifier.Queue.Push(n)
+}
+
 func (notifier *Notifier) Start() error {
 	c, err := notifier.Queue.PopChan()
 	if err != nil {
@@ -66,7 +49,4 @@ func (notifier *Notifier) DeliverNotification(n *notification.Notification) (sta
 		return 0, "", err
 	}
 	return d.Deliver(n.Content)
-}
-func NewNotifier() *Notifier {
-	return &Notifier{}
 }
