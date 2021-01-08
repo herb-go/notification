@@ -2,16 +2,32 @@ package notificationqueue
 
 import "github.com/herb-go/notification"
 
+var NopReceiptHanlder = func(nid string, eid string, reason string, status int32) {}
+
 type Notifier struct {
-	DeliveryCenter DeliveryCenter
-	Stream         Stream
-	c              chan int
-	OnExecution    func(*Execution)
-	Recovery       func()
+	DeliveryCenter
+	queue       Queue
+	c           chan int
+	OnExecution func(*Execution)
+	OnReceipt   func(nid string, eid string, status int32, msg string)
+	Recovery    func()
+}
+
+func (n *Notifier) SetStream(q Queue) {
+	n.queue = q
+}
+func (notifier *Notifier) handleReceipt(nid string, eid string, status int32, msg string) {
+	defer notifier.Recovery()
+	notifier.OnReceipt(nid, eid, status, msg)
+}
+func (notifier *Notifier) returnReceipt(nid string, eid string, status int32, msg string) error {
+	go notifier.handleReceipt(nid, eid, status, msg)
+	return notifier.queue.Remove(nid)
 }
 
 func (notifier *Notifier) execute(e *Execution) {
 	defer notifier.Recovery()
+	e.ReturnReceipt = notifier.returnReceipt
 	notifier.OnExecution(e)
 }
 func (notifier *Notifier) listen(c chan *Execution) {
@@ -25,22 +41,22 @@ func (notifier *Notifier) listen(c chan *Execution) {
 	}
 }
 func (notifier *Notifier) Notify(n *notification.Notification) error {
-	return notifier.Stream.Push(n)
+	return notifier.queue.Push(n)
 }
 
 func (notifier *Notifier) Start() error {
-	c, err := notifier.Stream.PopChan()
+	c, err := notifier.queue.PopChan()
 	if err != nil {
 		return err
 	}
 	go notifier.listen(c)
-	return notifier.Stream.Start()
+	return notifier.queue.Start()
 }
 
 func (notifier *Notifier) Stop() error {
 	close(notifier.c)
 	notifier.c = nil
-	return notifier.Stream.Stop()
+	return notifier.queue.Stop()
 }
 
 func (notifier *Notifier) DeliverNotification(n *notification.Notification) (status notification.DeliveryStatus, receipt string, err error) {
@@ -49,4 +65,8 @@ func (notifier *Notifier) DeliverNotification(n *notification.Notification) (sta
 		return 0, "", err
 	}
 	return d.Deliver(n.Content)
+}
+
+func NewNotifier() *Notifier {
+	return &Notifier{}
 }
