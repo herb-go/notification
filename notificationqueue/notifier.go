@@ -14,11 +14,18 @@ type Notifier struct {
 	c           chan int
 	OnExecution func(*Execution)
 	OnReceipt   func(nid string, eid string, status notification.DeliveryStatus, msg string)
-	Recovery    func()
+	OnError     func(error)
 }
 
 func (n *Notifier) SetQueue(q Queue) {
 	n.queue = q
+}
+func (notifier *Notifier) Recovery() {
+	r := recover()
+	if r != nil {
+		err := r.(error)
+		notifier.OnError(err)
+	}
 }
 func (notifier *Notifier) handleReceipt(nid string, eid string, status notification.DeliveryStatus, msg string) {
 	defer notifier.Recovery()
@@ -32,7 +39,7 @@ func (notifier *Notifier) execute(e *Execution) {
 }
 func (notifier *Notifier) deliver(e *Execution) {
 	defer notifier.Recovery()
-	status, msg, err := notifier.DeliverNotification(e.Notification)
+	status, msg, err := notifier.deliverNotification(e.Notification)
 	if err != nil {
 		status = notification.DeliveryStatusFail
 		msg = err.Error()
@@ -45,7 +52,7 @@ func (notifier *Notifier) deliver(e *Execution) {
 	}
 	err = notifier.queue.Remove(nid)
 	if err != nil {
-		panic(err)
+		notifier.OnError(err)
 	}
 }
 func (notifier *Notifier) listen(c chan *Execution) {
@@ -77,7 +84,7 @@ func (notifier *Notifier) Stop() error {
 	return notifier.queue.Stop()
 }
 
-func (notifier *Notifier) DeliverNotification(n *notification.Notification) (status notification.DeliveryStatus, receipt string, err error) {
+func (notifier *Notifier) deliverNotification(n *notification.Notification) (status notification.DeliveryStatus, receipt string, err error) {
 	if n.ExpiredTime >= time.Now().Unix() {
 		return notification.DeliveryStatusExpired, "", nil
 	}
