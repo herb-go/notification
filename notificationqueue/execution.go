@@ -1,11 +1,14 @@
 package notificationqueue
 
-import "github.com/herb-go/notification"
+import (
+	"time"
+
+	"github.com/herb-go/notification"
+)
 
 var ExecuteStatusFail = int32(0)
 var ExecuteStatusSuccess = int32(1)
 var ExecuteStatusAbort = int32(2)
-var ExecuteStatusRetryTooMany = int32(3)
 
 type Execution struct {
 	ExecutionID    string
@@ -26,4 +29,12 @@ func (e *Execution) Fail(reason string) error {
 
 func (e *Execution) Abort(reason string) error {
 	return e.ReturnReceipt(e.Notification.ID, e.ExecutionID, ExecuteStatusSuccess, reason)
+}
+func NewExecution() *Execution {
+	time.Now()
+	return &Execution{}
+}
+
+type ExecutionCreateor interface {
+	CreateExecution(*notification.Notification) (*Execution, error)
 }

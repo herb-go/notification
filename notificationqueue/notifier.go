@@ -13,7 +13,7 @@ type Notifier struct {
 	Recovery    func()
 }
 
-func (n *Notifier) SetStream(q Queue) {
+func (n *Notifier) SetQueue(q Queue) {
 	n.queue = q
 }
 func (notifier *Notifier) handleReceipt(nid string, eid string, status int32, msg string) {
@@ -22,6 +22,9 @@ func (notifier *Notifier) handleReceipt(nid string, eid string, status int32, ms
 }
 func (notifier *Notifier) returnReceipt(nid string, eid string, status int32, msg string) error {
 	go notifier.handleReceipt(nid, eid, status, msg)
+	if status == ExecuteStatusFail {
+		return nil
+	}
 	return notifier.queue.Remove(nid)
 }
 
