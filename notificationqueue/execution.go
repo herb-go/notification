@@ -16,13 +16,13 @@ type Execution struct {
 }
 
 func (e *Execution) Success(receipt string) error {
-	return e.queue.ReturnSuccessReceipt(e.Notification.ID, e.ExecutionID, receipt)
+	return e.queue.ReturnReceipt(e.Notification.ID, e.ExecutionID, ExecuteStatusSuccess, receipt)
 }
 
 func (e *Execution) Fail(reason string) error {
-	return e.queue.ReturnFailReceipt(e.Notification.ID, e.ExecutionID, reason)
+	return e.queue.ReturnReceipt(e.Notification.ID, e.ExecutionID, ExecuteStatusSuccess, reason)
 }
 
 func (e *Execution) Abort(reason string) error {
-	return e.queue.ReturnFailReceipt(e.Notification.ID, e.ExecutionID, reason)
+	return e.queue.ReturnReceipt(e.Notification.ID, e.ExecutionID, ExecuteStatusSuccess, reason)
 }
