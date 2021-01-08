@@ -4,7 +4,7 @@ import "github.com/herb-go/notification"
 
 type Notifier struct {
 	DeliveryCenter DeliveryCenter
-	Queue          Queue
+	Stream         Stream
 	c              chan int
 	OnExecution    func(*Execution)
 	Recovery       func()
@@ -25,22 +25,22 @@ func (notifier *Notifier) listen(c chan *Execution) {
 	}
 }
 func (notifier *Notifier) Notify(n *notification.Notification) error {
-	return notifier.Queue.Push(n)
+	return notifier.Stream.Push(n)
 }
 
 func (notifier *Notifier) Start() error {
-	c, err := notifier.Queue.PopChan()
+	c, err := notifier.Stream.PopChan()
 	if err != nil {
 		return err
 	}
 	go notifier.listen(c)
-	return nil
+	return notifier.Stream.Start()
 }
 
 func (notifier *Notifier) Stop() error {
 	close(notifier.c)
 	notifier.c = nil
-	return nil
+	return notifier.Stream.Stop()
 }
 
 func (notifier *Notifier) DeliverNotification(n *notification.Notification) (status notification.DeliveryStatus, receipt string, err error) {
