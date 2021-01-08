@@ -2,6 +2,10 @@ package notificationqueue
 
 import "github.com/herb-go/notification"
 
+var ExecuteStatusFail = int32(0)
+var ExecuteStatusSuccess = int32(1)
+var ExecuteStatusAbort = int32(2)
+
 type Execution struct {
 	ExecutionID    string
 	Notification   *notification.Notification
