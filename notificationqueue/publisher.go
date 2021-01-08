@@ -21,7 +21,7 @@ func (publisher *Publisher) PublishNotification(n *notification.Notification) (b
 }
 
 func (publisher *Publisher) PublishDraft(nid string) (*notification.Notification, error) {
-	n, err := publisher.Draftbox.Discard(nid)
+	n, err := publisher.Draftbox.Eject(nid)
 	if err != nil {
 		return nil, err
 	}

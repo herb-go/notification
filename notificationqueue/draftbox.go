@@ -22,8 +22,7 @@ type Draftbox interface {
 	Draft(notification *notification.Notification) error
 	List(condition []Condition, start string, asc bool, count int) (result []*notification.Notification, err error)
 	SupportedConditions() ([]string, error)
-	Discard(id string) (*notification.Notification, error)
-	DiscardAll(condition []Condition, start string, asc bool, count int) error
+	Eject(id string) (*notification.Notification, error)
 }
 
 type DraftReviewer interface {
