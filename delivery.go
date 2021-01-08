@@ -17,4 +17,5 @@ const (
 	DeliveryStatusFail    = DeliveryStatus(0)
 	DeliveryStatusSuccess = DeliveryStatus(1)
 	DeliveryStatusAbort   = DeliveryStatus(2)
+	DeliveryStatusExpired = DeliveryStatus(3)
 )
