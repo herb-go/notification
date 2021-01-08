@@ -5,6 +5,7 @@ import "fmt"
 type Notification struct {
 	ID          string
 	Delivery    string
+	CreatedTime int64
 	ExpiredTime int64
 	Header      Header
 	Content     Content

@@ -1,15 +1,20 @@
 package notification
 
-type DeliveryServer interface {
-	DeliveryType() string
-	MustEscape(string) string
-	Deliver(Content) (staus DeliveryStatus, receipt string, err error)
-}
-
 type DeliveryStatus int64
 
+type DeliveryServer interface {
+	DeliveryName() string
+	Driver
+}
+
+type Driver interface {
+	DeliveryType() string
+	MustEscape(string) string
+	Deliver(Content) (status DeliveryStatus, receipt string, err error)
+}
+
 const (
-	DeliveryStatusFail = DeliveryStatus(iota)
-	DeliveryStatusSuccess
-	DeliveryStatusAbort
+	DeliveryStatusFail    = DeliveryStatus(0)
+	DeliveryStatusSuccess = DeliveryStatus(1)
+	DeliveryStatusAbort   = DeliveryStatus(2)
 )

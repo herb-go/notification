@@ -1,5 +1,5 @@
 package notification
 
 type Notifier interface {
-	Notfiy(*Notification) error
+	Notify(*Notification) (sent bool, err error)
 }

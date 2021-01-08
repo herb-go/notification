@@ -37,3 +37,16 @@ func CheckRequiredContentError(c Content, fields []string) error {
 	}
 	return nil
 }
+
+type ErrNofitactionIDNotFound string
+
+func (e ErrNofitactionIDNotFound) Error() string {
+	return fmt.Sprintf("notification: id not found [%s]", e)
+}
+
+type ErrorDeliveryNotFound string
+
+func (e ErrorDeliveryNotFound) Error() string {
+	return fmt.Sprintf("notification: delivery not found [%s]", e)
+
+}
