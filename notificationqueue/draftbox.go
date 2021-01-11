@@ -20,7 +20,8 @@ type Condition struct {
 
 type Draftbox interface {
 	Draft(notification *notification.Notification) error
-	List(condition []Condition, start string, asc bool, count int) (result []*notification.Notification, iter string, err error)
+	List(condition []*Condition, start string, asc bool, count int) (result []*notification.Notification, iter string, err error)
+	Count(condition []*Condition) (int, error)
 	SupportedConditions() ([]string, error)
 	Eject(id string) (*notification.Notification, error)
 }
