@@ -45,6 +45,6 @@ func newTestDraft() *testDraft {
 	return &testDraft{}
 }
 
-var testDraftReviewer = notificationqueue.FuncDraftReviewer(func(n *notification.Notification) (publishable bool, err error) {
+var testDraftReviewer = notificationqueue.DraftReviewerFunc(func(n *notification.Notification) (publishable bool, err error) {
 	return n.Header[notification.HeaderNameDraftMode] != "", nil
 })

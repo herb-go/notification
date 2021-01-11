@@ -29,8 +29,8 @@ type DraftReviewer interface {
 	ReviewDraft(*notification.Notification) (publishable bool, err error)
 }
 
-type FuncDraftReviewer func(*notification.Notification) (publishable bool, err error)
+type DraftReviewerFunc func(*notification.Notification) (publishable bool, err error)
 
-func (r FuncDraftReviewer) ReviewDraft(n *notification.Notification) (publishable bool, err error) {
-	return r(n)
+func (f DraftReviewerFunc) ReviewDraft(n *notification.Notification) (publishable bool, err error) {
+	return f(n)
 }
