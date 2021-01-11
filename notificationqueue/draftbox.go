@@ -20,11 +20,17 @@ type Condition struct {
 
 type Draftbox interface {
 	Draft(notification *notification.Notification) error
-	List(condition []Condition, start string, asc bool, count int) (result []*notification.Notification, err error)
+	List(condition []Condition, start string, asc bool, count int) (result []*notification.Notification, iter string, err error)
 	SupportedConditions() ([]string, error)
 	Eject(id string) (*notification.Notification, error)
 }
 
 type DraftReviewer interface {
 	ReviewDraft(*notification.Notification) (publishable bool, err error)
+}
+
+type FuncDraftReviewer func(*notification.Notification) (publishable bool, err error)
+
+func (r FuncDraftReviewer) ReviewDraft(n *notification.Notification) (publishable bool, err error) {
+	return r(n)
 }

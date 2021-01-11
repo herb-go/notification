@@ -23,7 +23,7 @@ func (c PlainDeliveryCenter) List() ([]notification.DeliveryServer, error) {
 func (c PlainDeliveryCenter) Get(name string) (notification.DeliveryServer, error) {
 	s, ok := c[name]
 	if !ok || s == nil {
-		return nil, notification.ErrorDeliveryNotFound(name)
+		return nil, notification.ErrDeliveryNotFound(name)
 	}
 	return s, nil
 }
@@ -35,11 +35,11 @@ type AtomicDeliveryCenter struct {
 	data atomic.Value
 }
 
-func (c *AtomicDeliveryCenter) SetDeliveryCenter(pc PlainDeliveryCenter) {
+func (c *AtomicDeliveryCenter) SetDeliveryCenter(pc DeliveryCenter) {
 	c.data.Store(pc)
 }
-func (c *AtomicDeliveryCenter) DeliveryCenter() PlainDeliveryCenter {
-	return c.data.Load().(PlainDeliveryCenter)
+func (c *AtomicDeliveryCenter) DeliveryCenter() DeliveryCenter {
+	return c.data.Load().(DeliveryCenter)
 }
 
 func (c *AtomicDeliveryCenter) List() ([]notification.DeliveryServer, error) {

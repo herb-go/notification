@@ -29,5 +29,7 @@ func (publisher *Publisher) PublishDraft(nid string) (*notification.Notification
 }
 
 func NewPublisher() *Publisher {
-	return &Publisher{}
+	return &Publisher{
+		Notifier: NewNotifier(),
+	}
 }

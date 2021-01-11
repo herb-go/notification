@@ -14,3 +14,10 @@ type Notification struct {
 func (n *Notification) String() string {
 	return fmt.Sprintf("%s @ %s [ %s ]", n.ID, n.Delivery, n.Header.String())
 }
+
+func New() *Notification {
+	return &Notification{
+		Header:  Header{},
+		Content: Content{},
+	}
+}

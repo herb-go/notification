@@ -15,7 +15,3 @@ type Execution struct {
 func NewExecution() *Execution {
 	return &Execution{}
 }
-
-type ExecutionCreator interface {
-	CreateExecution(*notification.Notification) (*Execution, error)
-}

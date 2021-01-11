@@ -10,6 +10,7 @@ var HeaderNameTarget = "target"
 var HeaderNameBatch = "batch"
 var HeaderNameMessage = "mesasge"
 var HeaderNameTopic = "topic"
+var HeaderNameDraftMode = "draftmode"
 
 type Header map[string]string
 

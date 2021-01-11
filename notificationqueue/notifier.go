@@ -10,6 +10,7 @@ var NopReceiptHanlder = func(nid string, eid string, reason string, status int32
 
 type Notifier struct {
 	DeliveryCenter
+	Workers        int
 	queue          Queue
 	c              chan int
 	OnNotification func(*notification.Notification)
@@ -34,8 +35,8 @@ func (notifier *Notifier) handleReceipt(r *Receipt) {
 }
 
 func (notifier *Notifier) execute(e *Execution) {
-	defer notifier.Recovery()
-	notifier.OnExecution(e)
+	go notifier.OnExecution(e)
+	notifier.deliver(e)
 
 }
 func (notifier *Notifier) deliver(e *Execution) {
@@ -66,8 +67,8 @@ func (notifier *Notifier) listen(c chan *Execution) {
 	for {
 		select {
 		case e := <-c:
-			go notifier.execute(e)
-		case _ = <-notifier.c:
+			notifier.execute(e)
+		case <-notifier.c:
 			return
 		}
 	}
@@ -78,16 +79,23 @@ func (notifier *Notifier) onNotification(n *notification.Notification) {
 	notifier.OnNotification(n)
 }
 func (notifier *Notifier) Notify(n *notification.Notification) error {
-	go notifier.OnNotification(n)
+	go notifier.onNotification(n)
 	return notifier.queue.Push(n)
 }
 
 func (notifier *Notifier) Start() error {
+	notifier.c = make(chan int)
 	c, err := notifier.queue.PopChan()
 	if err != nil {
 		return err
 	}
-	go notifier.listen(c)
+	workers := notifier.Workers
+	if workers < 1 {
+		workers = 1
+	}
+	for i := 0; i < workers; i++ {
+		go notifier.listen(c)
+	}
 	return notifier.queue.Start()
 }
 
@@ -98,7 +106,7 @@ func (notifier *Notifier) Stop() error {
 }
 
 func (notifier *Notifier) deliverNotification(n *notification.Notification) (status notification.DeliveryStatus, receipt string, err error) {
-	if n.ExpiredTime >= time.Now().Unix() {
+	if n.ExpiredTime > 0 && n.ExpiredTime <= time.Now().Unix() {
 		return notification.DeliveryStatusExpired, "", nil
 	}
 	d, err := notifier.DeliveryCenter.Get(n.Delivery)
