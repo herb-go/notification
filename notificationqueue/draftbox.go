@@ -11,7 +11,7 @@ const ConditionBatch = "batch"
 const ConditionInContent = "incontent"
 const ConditionDelivery = "delivery"
 const ConditionBeforeTimestamp = "beforetimestamp"
-const ConditionAeforeTimestamp = "aftertimestamp"
+const ConditionAfterTimestamp = "aftertimestamp"
 
 type Condition struct {
 	Keyword string
