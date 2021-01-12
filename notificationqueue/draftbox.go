@@ -52,13 +52,13 @@ type Draftbox interface {
 	//List list no more than count notifactions in draftbox with given search conditions form start position .
 	//Count should be greater than 0.
 	//Found notifications and next list position iter will be returned.
+	//Return largest id notification if asc is false.
 	List(condition []*Condition, start string, asc bool, count int) (result []*notification.Notification, iter string, err error)
 	//Count draft box with given search conditions
 	Count(condition []*Condition) (int, error)
 	//SupportedConditions return supported condition keyword list
 	SupportedConditions() ([]string, error)
 	//Eject remove notification by given id and return removed notification.
-	//
 	Eject(id string) (*notification.Notification, error)
 }
 
