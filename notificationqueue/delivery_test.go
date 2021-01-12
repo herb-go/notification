@@ -14,9 +14,6 @@ type testDelivery struct {
 	data   []notification.Content
 }
 
-func (d *testDelivery) DeliveryName() string {
-	return "test"
-}
 func (d *testDelivery) DeliveryType() string {
 	return "test"
 }
@@ -30,14 +27,17 @@ func (d *testDelivery) Deliver(c notification.Content) (status notification.Deli
 	return notification.DeliveryStatusSuccess, strconv.Itoa(len(d.data)), nil
 }
 
-func newTestDelivery() *testDelivery {
-	return &testDelivery{}
+func newTestDelivery(id string) *notification.DeliveryServer {
+	s := notification.NewDeliveryServer()
+	s.Delivery = id
+	s.Driver = &testDelivery{}
+	return s
 }
 
 func TestDeliveryCenter(t *testing.T) {
 	c := notificationqueue.NewPlainDeliveryCenter()
-	c["test1"] = newTestDelivery()
-	c["test2"] = newTestDelivery()
+	c["test1"] = newTestDelivery("test1")
+	c["test2"] = newTestDelivery("test2")
 	ac := notificationqueue.NewAtomicDeliveryCenter()
 	l, err := ac.List()
 	if err != nil || len(l) != 0 {
@@ -60,8 +60,8 @@ func TestDeliveryCenter(t *testing.T) {
 
 func newTestDeliveryCenter() notificationqueue.DeliveryCenter {
 	c := notificationqueue.NewPlainDeliveryCenter()
-	c["test1"] = newTestDelivery()
-	c["test2"] = newTestDelivery()
+	c["test1"] = newTestDelivery("test1")
+	c["test2"] = newTestDelivery("test2")
 	ac := notificationqueue.NewAtomicDeliveryCenter()
 	ac.SetDeliveryCenter(c)
 	return ac

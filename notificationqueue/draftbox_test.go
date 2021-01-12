@@ -14,6 +14,12 @@ type testDraft struct {
 	data   []*notification.Notification
 }
 
+func (d *testDraft) Open() error {
+	return nil
+}
+func (d *testDraft) Close() error {
+	return nil
+}
 func (d *testDraft) Draft(notification *notification.Notification) error {
 	locker.Lock()
 	defer locker.Unlock()
@@ -119,16 +125,12 @@ func (d *testDraft) Eject(id string) (*notification.Notification, error) {
 			return n, nil
 		}
 	}
-	return nil, notification.ErrNofitactionIDNotFound(id)
+	return nil, notification.ErrNotificationIDNotFound(id)
 }
 
 func newTestDraft() *testDraft {
 	return &testDraft{}
 }
-
-var testDraftReviewer = notificationqueue.DraftReviewerFunc(func(n *notification.Notification) (publishable bool, err error) {
-	return n.Header[notification.HeaderNameDraftMode] != "", nil
-})
 
 func TestCondition(t *testing.T) {
 	var n *notification.Notification

@@ -2,12 +2,16 @@ package notificationqueue
 
 import "github.com/herb-go/notification"
 
+//Publisher publisher struct
 type Publisher struct {
+	//DraftReviewer default value DraftReviewerHeader
 	DraftReviewer DraftReviewer
 	Draftbox      Draftbox
 	*Notifier
 }
 
+//PublishNotification publish given notification
+//Return if notfication is published.
 func (publisher *Publisher) PublishNotification(n *notification.Notification) (bool, error) {
 	ok, err := publisher.DraftReviewer.ReviewDraft(n)
 	if err != nil {
@@ -20,6 +24,8 @@ func (publisher *Publisher) PublishNotification(n *notification.Notification) (b
 	return err == nil, err
 }
 
+//PublishDraft publish notificaiton by given id.
+//Notification.ErrNotificationIDNotFound will be returned if nid not found.
 func (publisher *Publisher) PublishDraft(nid string) (*notification.Notification, error) {
 	n, err := publisher.Draftbox.Eject(nid)
 	if err != nil {
@@ -28,8 +34,29 @@ func (publisher *Publisher) PublishDraft(nid string) (*notification.Notification
 	return n, publisher.Notifier.Notify(n)
 }
 
+//Start start publisher
+func (publisher *Publisher) Start() error {
+	err := publisher.Draftbox.Open()
+	if err != nil {
+		return err
+	}
+	return publisher.Notifier.Start()
+}
+
+//Stop stop publisher
+func (publisher *Publisher) Stop() error {
+	err := publisher.Draftbox.Close()
+	if err != nil {
+		publisher.OnError(err)
+	}
+	return publisher.Notifier.Stop()
+
+}
+
+//NewPublisher create new publisher
 func NewPublisher() *Publisher {
 	return &Publisher{
-		Notifier: NewNotifier(),
+		DraftReviewer: DraftReviewerHeader,
+		Notifier:      NewNotifier(),
 	}
 }

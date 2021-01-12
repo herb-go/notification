@@ -34,7 +34,7 @@ func initLog() {
 
 func newTestPublisher() *notificationqueue.Publisher {
 	p := notificationqueue.NewPublisher()
-	p.DraftReviewer = testDraftReviewer
+	p.DraftReviewer = notificationqueue.DraftReviewerHeader
 	n := notificationqueue.NewNotifier()
 	p.Notifier = n
 	n.DeliveryCenter = newTestDeliveryCenter()

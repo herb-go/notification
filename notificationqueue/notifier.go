@@ -6,23 +6,35 @@ import (
 	"github.com/herb-go/notification"
 )
 
+//NopReceiptHanlder nop receipt hanlder
 var NopReceiptHanlder = func(nid string, eid string, reason string, status int32) {}
 
+//Notifier notifier struct
 type Notifier struct {
+	//DeliveryCenter
 	DeliveryCenter
-	Workers        int
-	queue          Queue
-	c              chan int
+	//Workers push workers num
+	Workers int
+	queue   Queue
+	c       chan int
+	//OnNotification notification handler
 	OnNotification func(*notification.Notification)
-	OnExecution    func(*Execution)
-	OnReceipt      func(*Receipt)
-	OnError        func(error)
+	//OnExecution execution handler
+	OnExecution func(*Execution)
+	//OnReceipt receipt handler
+	OnReceipt func(*Receipt)
+	//OnError error handler
+	OnError func(error)
 }
 
-func (n *Notifier) SetQueue(q Queue) {
-	n.queue = q
+//SetQueue set queue to notifier.
+//SetQueue should be called before start
+func (notifier *Notifier) SetQueue(q Queue) {
+	notifier.queue = q
 }
-func (notifier *Notifier) Recovery() {
+
+//Recover recover with notifier.OnError
+func (notifier *Notifier) Recover() {
 	r := recover()
 	if r != nil {
 		err := r.(error)
@@ -30,7 +42,7 @@ func (notifier *Notifier) Recovery() {
 	}
 }
 func (notifier *Notifier) handleReceipt(r *Receipt) {
-	defer notifier.Recovery()
+	defer notifier.Recover()
 	notifier.OnReceipt(r)
 }
 
@@ -40,7 +52,7 @@ func (notifier *Notifier) execute(e *Execution) {
 
 }
 func (notifier *Notifier) deliver(e *Execution) {
-	defer notifier.Recovery()
+	defer notifier.Recover()
 	status, msg, err := notifier.deliverNotification(e.Notification)
 	if err != nil {
 		go notifier.OnError(err)
@@ -75,14 +87,17 @@ func (notifier *Notifier) listen(c chan *Execution) {
 }
 
 func (notifier *Notifier) onNotification(n *notification.Notification) {
-	defer notifier.Recovery()
+	defer notifier.Recover()
 	notifier.OnNotification(n)
 }
+
+//Notify delivery notifiction
 func (notifier *Notifier) Notify(n *notification.Notification) error {
 	go notifier.onNotification(n)
 	return notifier.queue.Push(n)
 }
 
+//Start start notifier
 func (notifier *Notifier) Start() error {
 	notifier.c = make(chan int)
 	c, err := notifier.queue.PopChan()
@@ -99,6 +114,7 @@ func (notifier *Notifier) Start() error {
 	return notifier.queue.Start()
 }
 
+//Stop stop notifier
 func (notifier *Notifier) Stop() error {
 	close(notifier.c)
 	notifier.c = nil
@@ -116,6 +132,7 @@ func (notifier *Notifier) deliverNotification(n *notification.Notification) (sta
 	return d.Deliver(n.Content)
 }
 
+//NewNotifier create new notifier
 func NewNotifier() *Notifier {
 	return &Notifier{}
 }
