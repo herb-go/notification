@@ -77,4 +77,38 @@ func TestFilter(t *testing.T) {
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
+
+	f = NewFilter()
+	err = ApplyToFilter(f, []*Condition{&Condition{Keyword: ConditionInContent, Value: "searchfor"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if f.InContent != "searchfor" {
+		t.Fatal(f)
+	}
+	n = notification.New()
+	ok, err = f.FilterNotification(n, 100000)
+	if ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	n.Content.Set("content1", "value1")
+	ok, err = f.FilterNotification(n, 100000)
+	if ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	n.Content.Set("content1", "searchfor")
+	ok, err = f.FilterNotification(n, 100000)
+	if !ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	n.Content.Set("content1", "asearchfora")
+	ok, err = f.FilterNotification(n, 100000)
+	if !ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	n.Content.Set("content2", "asearchfora")
+	ok, err = f.FilterNotification(n, 100000)
+	if !ok || err != nil {
+		t.Fatal(ok, err)
+	}
 }

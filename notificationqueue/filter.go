@@ -43,6 +43,8 @@ func (c *PlainFilter) ApplyCondition(cond *Condition) error {
 		c.Target = cond.Value
 	case ConditionTopic:
 		c.Topic = cond.Value
+	case ConditionInContent:
+		c.InContent = cond.Value
 	case ConditionAfterTimestamp:
 		ts, err := strconv.ParseInt(cond.Value, 10, 64)
 		if err != nil {
