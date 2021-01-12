@@ -60,11 +60,20 @@ func CheckRequiredContentError(c Content, fields []string) error {
 }
 
 //ErrNotificationIDNotFound error raised if given notification not found
-type ErrNotificationIDNotFound string
+type ErrNotificationIDNotFound struct {
+	NID string
+}
 
 //Error return error message
-func (e ErrNotificationIDNotFound) Error() string {
-	return fmt.Sprintf("notification: id not found [%s]", string(e))
+func (e *ErrNotificationIDNotFound) Error() string {
+	return fmt.Sprintf("notification: id not found [%s]", e.NID)
+}
+
+//NewErrNotificationIDNotFound create new ErrNotificationIDNotFound
+func NewErrNotificationIDNotFound(nid string) *ErrNotificationIDNotFound {
+	return &ErrNotificationIDNotFound{
+		NID: nid,
+	}
 }
 
 //IsErrNotificationIDNotFound check if given error is ErrNotificationIDNotFound.
@@ -72,16 +81,25 @@ func IsErrNotificationIDNotFound(err error) bool {
 	if err == nil {
 		return false
 	}
-	_, ok := err.(ErrNotificationIDNotFound)
+	_, ok := err.(*ErrNotificationIDNotFound)
 	return ok
 }
 
 //ErrDeliveryNotFound error raised if given delivery not found
-type ErrDeliveryNotFound string
+type ErrDeliveryNotFound struct {
+	Delivery string
+}
 
 //Error return error message
-func (e ErrDeliveryNotFound) Error() string {
-	return fmt.Sprintf("notification: delivery not found [%s]", string(e))
+func (e *ErrDeliveryNotFound) Error() string {
+	return fmt.Sprintf("notification: delivery not found [%s]", e.Delivery)
+}
+
+//NewErrDeliveryNotFound create new ErrDeliveryNotFound
+func NewErrDeliveryNotFound(delivery string) *ErrDeliveryNotFound {
+	return &ErrDeliveryNotFound{
+		Delivery: delivery,
+	}
 }
 
 //IsErrDeliveryNotFound check if given error is ErrDeliveryNotFound.
@@ -89,6 +107,6 @@ func IsErrDeliveryNotFound(err error) bool {
 	if err == nil {
 		return false
 	}
-	_, ok := err.(ErrDeliveryNotFound)
+	_, ok := err.(*ErrDeliveryNotFound)
 	return ok
 }

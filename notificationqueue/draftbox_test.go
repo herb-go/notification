@@ -43,7 +43,7 @@ func (d *testDraft) List(condition []*notificationqueue.Condition, iter string, 
 		if v.Keyword == notificationqueue.ConditionBatch {
 			batch = v.Value
 		} else {
-			return nil, "", notificationqueue.ErrConditionNotSupported(v.Keyword)
+			return nil, "", notificationqueue.NewErrConditionNotSupported(v.Keyword)
 		}
 	}
 	if asc {
@@ -99,7 +99,7 @@ func (d *testDraft) Count(condition []*notificationqueue.Condition) (int, error)
 		if v.Keyword == notificationqueue.ConditionBatch {
 			batch = v.Value
 		} else {
-			return 0, notificationqueue.ErrConditionNotSupported(v.Keyword)
+			return 0, notificationqueue.NewErrConditionNotSupported(v.Keyword)
 		}
 	}
 	var count int
@@ -125,7 +125,7 @@ func (d *testDraft) Eject(id string) (*notification.Notification, error) {
 			return n, nil
 		}
 	}
-	return nil, notification.ErrNotificationIDNotFound(id)
+	return nil, notification.NewErrNotificationIDNotFound(id)
 }
 
 func newTestDraft() *testDraft {

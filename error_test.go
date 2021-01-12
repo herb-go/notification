@@ -46,7 +46,7 @@ func TestError(t *testing.T) {
 		t.Fatal(ok)
 	}
 
-	err = ErrNotificationIDNotFound("nid")
+	err = NewErrNotificationIDNotFound("nid")
 	ok = IsErrNotificationIDNotFound(nil)
 	if ok {
 		t.Fatal(ok)
@@ -59,7 +59,7 @@ func TestError(t *testing.T) {
 	if !strings.Contains(msg, "nid") || !strings.Contains(msg, "not found") {
 		t.Fatal(msg)
 	}
-	err = ErrDeliveryNotFound("did")
+	err = NewErrDeliveryNotFound("did")
 	ok = IsErrDeliveryNotFound(nil)
 	if ok {
 		t.Fatal(ok)

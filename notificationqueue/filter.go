@@ -46,17 +46,17 @@ func (c *PlainFilter) ApplyCondition(cond *Condition) error {
 	case ConditionAfterTimestamp:
 		ts, err := strconv.ParseInt(cond.Value, 10, 64)
 		if err != nil {
-			return nil
+			return NewErrInvalidConditionValue(ConditionAfterTimestamp)
 		}
 		c.After = ts
 	case ConditionBeforeTimestamp:
 		ts, err := strconv.ParseInt(cond.Value, 10, 64)
 		if err != nil {
-			return nil
+			return NewErrInvalidConditionValue(ConditionBeforeTimestamp)
 		}
 		c.Before = ts
 	default:
-		return ErrConditionNotSupported(cond.Value)
+		return NewErrConditionNotSupported(cond.Keyword)
 	}
 	return nil
 }
@@ -94,7 +94,7 @@ func (c *PlainFilter) FilterNotification(n *notification.Notification, ts int64)
 	if c.After > 0 && c.After <= ts {
 		return false, nil
 	}
-	if c.Before > 0 && c.After >= ts {
+	if c.Before > 0 && c.Before >= ts {
 		return false, nil
 	}
 	return true, nil

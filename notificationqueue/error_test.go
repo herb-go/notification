@@ -20,7 +20,7 @@ func TestError(t *testing.T) {
 	if ok {
 		t.Fatal(ok)
 	}
-	err = ErrConditionNotSupported("test")
+	err = NewErrConditionNotSupported("test")
 	ok = IsErrConditionNotSupported(err)
 	if !ok {
 		t.Fatal(ok)
@@ -28,5 +28,18 @@ func TestError(t *testing.T) {
 	msg = err.Error()
 	if !strings.Contains(msg, "test") || !strings.Contains(msg, "not supported") {
 		t.Fatal(msg)
+	}
+	err = NewErrInvalidConditionValue("testvalue")
+	ok = IsErrInvalidConditionValue(err)
+	if !ok {
+		t.Fatal(ok)
+	}
+	msg = err.Error()
+	if !strings.Contains(msg, "testvalue") || !strings.Contains(msg, "value invalid") {
+		t.Fatal(msg)
+	}
+	ok = IsErrConditionNotSupported(err)
+	if ok {
+		t.Fatal(ok)
 	}
 }
