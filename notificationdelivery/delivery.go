@@ -30,6 +30,16 @@ type DeliveryServer struct {
 	DeliveryDriver
 }
 
+//Deliver send give content.
+//Return delivery status and any receipt if returned,and any error if raised.
+//DeliveryStatusDisabled will be returned if DeliveryServer is disabled.
+func (s *DeliveryServer) Deliver(c notification.Content) (status DeliveryStatus, receipt string, err error) {
+	if s.Disabled {
+		return DeliveryStatusDisabled, "", nil
+	}
+	return s.DeliveryDriver.Deliver(c)
+}
+
 //NewDeliveryServer create new delivery server
 func NewDeliveryServer() *DeliveryServer {
 	return &DeliveryServer{}

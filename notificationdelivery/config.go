@@ -33,6 +33,7 @@ func (c *DeliveryServerConfig) CreateDeliverServer() (*DeliveryServer, error) {
 	return &DeliveryServer{
 		Delivery:       c.Delivery,
 		Description:    c.Description,
+		Disabled:       c.Disabled,
 		DeliveryDriver: d,
 	}, nil
 }

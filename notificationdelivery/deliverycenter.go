@@ -41,7 +41,7 @@ func (c PlainDeliveryCenter) Get(id string) (*DeliveryServer, error) {
 
 //Insert insert delivery server to c
 func (c PlainDeliveryCenter) Insert(d *DeliveryServer) {
-	c[d.DeliveryType()] = d
+	c[d.Delivery] = d
 }
 
 //NewPlainDeliveryCenter create new plain delivery center
@@ -82,9 +82,9 @@ func NewAtomicDeliveryCenter() *AtomicDeliveryCenter {
 	return c
 }
 
-//Delivery delivery content to delivery center with given keyword
+//Deliver delivery content to delivery center with given keyword
 //Return delivery status,receipt and any error if raised.
-func Delivery(c DeliveryCenter, delivery string, content notification.Content) (status DeliveryStatus, receipt string, err error) {
+func Deliver(c DeliveryCenter, delivery string, content notification.Content) (status DeliveryStatus, receipt string, err error) {
 	d, err := c.Get(delivery)
 	if err != nil {
 		return 0, "", err
@@ -92,11 +92,11 @@ func Delivery(c DeliveryCenter, delivery string, content notification.Content) (
 	return d.Deliver(content)
 }
 
-//DeliveryNotification notification to delivery center with given keyword
+//DeliverNotification notification to delivery center with given keyword
 //Return delivery status,receipt and any error if raised.
-func DeliveryNotification(c DeliveryCenter, n *notification.Notification) (status DeliveryStatus, receipt string, err error) {
+func DeliverNotification(c DeliveryCenter, n *notification.Notification) (status DeliveryStatus, receipt string, err error) {
 	if n.ExpiredTime > 0 && n.ExpiredTime <= time.Now().Unix() {
 		return DeliveryStatusExpired, "", nil
 	}
-	return Delivery(c, n.Delivery, n.Content)
+	return Deliver(c, n.Delivery, n.Content)
 }

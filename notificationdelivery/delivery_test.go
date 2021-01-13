@@ -1,6 +1,8 @@
 package notificationdelivery
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestDelivery(t *testing.T) {
 	d := NewDeliveryServer()
