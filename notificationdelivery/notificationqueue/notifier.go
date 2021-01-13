@@ -55,7 +55,7 @@ func (notifier *Notifier) deliver(e *Execution) {
 	status, msg, err := notifier.deliverNotification(e.Notification)
 	if err != nil {
 		go notifier.OnError(err)
-		status = notification.DeliveryStatusFail
+		status = notificationdelivery.DeliveryStatusFail
 		msg = err.Error()
 	}
 	nid := e.Notification.ID
@@ -66,7 +66,7 @@ func (notifier *Notifier) deliver(e *Execution) {
 	r.Status = status
 	r.Message = msg
 	go notifier.handleReceipt(r)
-	if status == notification.DeliveryStatusFail {
+	if status == notificationdelivery.DeliveryStatusFail {
 		return
 	}
 	err = notifier.queue.Remove(nid)
@@ -120,7 +120,7 @@ func (notifier *Notifier) Stop() error {
 	return notifier.queue.Stop()
 }
 
-func (notifier *Notifier) deliverNotification(n *notification.Notification) (status notification.DeliveryStatus, receipt string, err error) {
+func (notifier *Notifier) deliverNotification(n *notification.Notification) (status notificationdelivery.DeliveryStatus, receipt string, err error) {
 	return notificationdelivery.DeliverNotification(notifier.DeliveryCenter, n)
 
 }

@@ -1,13 +1,11 @@
 package notificationdelivery
 
-import "github.com/herb-go/notification"
-
 type Config struct {
 	DeliveryType   string
 	DeliveryConfig func(v interface{}) error `config:", lazyload"`
 }
 
-func (c *Config) CreateDriver() (notification.DeliveryDriver, error) {
+func (c *Config) CreateDriver() (DeliveryDriver, error) {
 	return NewDriver(c.DeliveryType, c.DeliveryConfig)
 }
 
@@ -17,12 +15,12 @@ type DeliverServerConfig struct {
 	Config
 }
 
-func (c *DeliverServerConfig) CreateDeliverServer() (*notification.DeliveryServer, error) {
+func (c *DeliverServerConfig) CreateDeliverServer() (*DeliveryServer, error) {
 	d, err := c.Config.CreateDriver()
 	if err != nil {
 		return nil, err
 	}
-	return &notification.DeliveryServer{
+	return &DeliveryServer{
 		Delivery:       c.Delivery,
 		Description:    c.Description,
 		DeliveryDriver: d,

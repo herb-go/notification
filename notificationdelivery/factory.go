@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"sort"
 	"sync"
-
-	"github.com/herb-go/notification"
 )
 
-type Factory func(loader func(v interface{}) error) (notification.DeliveryDriver, error)
+type Factory func(loader func(v interface{}) error) (DeliveryDriver, error)
 
 var (
 	factorysMu sync.RWMutex
@@ -53,7 +51,7 @@ func Factories() []string {
 
 //NewDriver create new driver with given name loader.
 //Reutrn driver created and any error if raised.
-func NewDriver(name string, loader func(v interface{}) error) (notification.DeliveryDriver, error) {
+func NewDriver(name string, loader func(v interface{}) error) (DeliveryDriver, error) {
 	factorysMu.RLock()
 	factoryi, ok := factories[name]
 	factorysMu.RUnlock()

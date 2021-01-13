@@ -19,15 +19,15 @@ func (d *testDelivery) DeliveryType() string {
 func (d *testDelivery) MustEscape(u string) string {
 	return "escaped:" + u
 }
-func (d *testDelivery) Deliver(c notification.Content) (status notification.DeliveryStatus, receipt string, err error) {
+func (d *testDelivery) Deliver(c notification.Content) (status notificationdelivery.DeliveryStatus, receipt string, err error) {
 	d.locker.Lock()
 	defer d.locker.Unlock()
 	d.data = append(d.data, c)
-	return notification.DeliveryStatusSuccess, strconv.Itoa(len(d.data)), nil
+	return notificationdelivery.DeliveryStatusSuccess, strconv.Itoa(len(d.data)), nil
 }
 
-func newTestDelivery(id string) *notification.DeliveryServer {
-	s := notification.NewDeliveryServer()
+func newTestDelivery(id string) *notificationdelivery.DeliveryServer {
+	s := notificationdelivery.NewDeliveryServer()
 	s.Delivery = id
 	s.DeliveryDriver = &testDelivery{}
 	return s

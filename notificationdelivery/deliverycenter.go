@@ -11,18 +11,18 @@ import (
 //Delivery center manages delivery servers by delivery keyword.
 type DeliveryCenter interface {
 	//List all delivery servers in delivery center and any error if raised.
-	List() ([]*notification.DeliveryServer, error)
+	List() ([]*DeliveryServer, error)
 	//Get get delivery server by keyword and return any error if rasied.
 	//Notification.ErrDeliveryNotFound should be returned if give keyword not found.
-	Get(keyword string) (*notification.DeliveryServer, error)
+	Get(keyword string) (*DeliveryServer, error)
 }
 
 //PlainDeliveryCenter plain delivery center type
-type PlainDeliveryCenter map[string]*notification.DeliveryServer
+type PlainDeliveryCenter map[string]*DeliveryServer
 
 //List all delivery servers in delivery center and any error if raised.
-func (c PlainDeliveryCenter) List() ([]*notification.DeliveryServer, error) {
-	result := []*notification.DeliveryServer{}
+func (c PlainDeliveryCenter) List() ([]*DeliveryServer, error) {
+	result := []*DeliveryServer{}
 	for k := range c {
 		result = append(result, c[k])
 	}
@@ -31,7 +31,7 @@ func (c PlainDeliveryCenter) List() ([]*notification.DeliveryServer, error) {
 
 //Get get delivery server by keyword and return any error if rasied.
 //Notification.ErrDeliveryNotFound should be returned if give keyword not found.
-func (c PlainDeliveryCenter) Get(id string) (*notification.DeliveryServer, error) {
+func (c PlainDeliveryCenter) Get(id string) (*DeliveryServer, error) {
 	s, ok := c[id]
 	if !ok || s == nil {
 		return nil, notification.NewErrDeliveryNotFound(id)
@@ -40,7 +40,7 @@ func (c PlainDeliveryCenter) Get(id string) (*notification.DeliveryServer, error
 }
 
 //Insert insert delivery server to c
-func (c PlainDeliveryCenter) Insert(d *notification.DeliveryServer) {
+func (c PlainDeliveryCenter) Insert(d *DeliveryServer) {
 	c[d.DeliveryType()] = d
 }
 
@@ -65,13 +65,13 @@ func (c *AtomicDeliveryCenter) DeliveryCenter() DeliveryCenter {
 }
 
 //List all delivery servers in delivery center and any error if raised.
-func (c *AtomicDeliveryCenter) List() ([]*notification.DeliveryServer, error) {
+func (c *AtomicDeliveryCenter) List() ([]*DeliveryServer, error) {
 	return c.DeliveryCenter().List()
 }
 
 //Get get delivery server by keyword and return any error if rasied.
 //Notification.ErrDeliveryNotFound should be returned if give keyword not found.
-func (c *AtomicDeliveryCenter) Get(id string) (*notification.DeliveryServer, error) {
+func (c *AtomicDeliveryCenter) Get(id string) (*DeliveryServer, error) {
 	return c.DeliveryCenter().Get(id)
 }
 
@@ -82,16 +82,16 @@ func NewAtomicDeliveryCenter() *AtomicDeliveryCenter {
 	return c
 }
 
-func Deliver(c DeliveryCenter, delivery string, content notification.Content) (status notification.DeliveryStatus, receipt string, err error) {
+func Deliver(c DeliveryCenter, delivery string, content notification.Content) (status DeliveryStatus, receipt string, err error) {
 	d, err := c.Get(delivery)
 	if err != nil {
 		return 0, "", err
 	}
 	return d.Deliver(content)
 }
-func DeliverNotification(c DeliveryCenter, n *notification.Notification) (status notification.DeliveryStatus, receipt string, err error) {
+func DeliverNotification(c DeliveryCenter, n *notification.Notification) (status DeliveryStatus, receipt string, err error) {
 	if n.ExpiredTime > 0 && n.ExpiredTime <= time.Now().Unix() {
-		return notification.DeliveryStatusExpired, "", nil
+		return DeliveryStatusExpired, "", nil
 	}
 	return Deliver(c, n.Delivery, n.Content)
 }

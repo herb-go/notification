@@ -1,9 +1,7 @@
 package notificationdelivery
 
-import "github.com/herb-go/notification"
-
-var NullFactory = func(loader func(v interface{}) error) (notification.DeliveryDriver, error) {
-	return notification.NullDelivery{}, nil
+var NullFactory = func(loader func(v interface{}) error) (DeliveryDriver, error) {
+	return NullDelivery{}, nil
 }
 
 func registerNull() {
