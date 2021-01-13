@@ -1,21 +1,31 @@
 package notificationdelivery
 
+//Config delivery driver config
 type Config struct {
-	DeliveryType   string
+	//DeliveryType delivery driver type
+	DeliveryType string
+	//DeliveryConfig delivery dirver config
 	DeliveryConfig func(v interface{}) error `config:", lazyload"`
 }
 
+//CreateDriver create delivery driver.
 func (c *Config) CreateDriver() (DeliveryDriver, error) {
 	return NewDriver(c.DeliveryType, c.DeliveryConfig)
 }
 
-type DeliverServerConfig struct {
-	Delivery    string
+//DeliveryServerConfig delivery config struct
+type DeliveryServerConfig struct {
+	//Delivery delivery keyword
+	Delivery string
+	//Disabled if delivery disabled
+	Disabled bool
+	//Description delivery description
 	Description string
 	Config
 }
 
-func (c *DeliverServerConfig) CreateDeliverServer() (*DeliveryServer, error) {
+//CreateDeliverServer create delivery server.
+func (c *DeliveryServerConfig) CreateDeliverServer() (*DeliveryServer, error) {
 	d, err := c.Config.CreateDriver()
 	if err != nil {
 		return nil, err
@@ -27,8 +37,10 @@ func (c *DeliverServerConfig) CreateDeliverServer() (*DeliveryServer, error) {
 	}, nil
 }
 
-type DeliveryCenterConfig []*DeliverServerConfig
+//DeliveryCenterConfig plain delivery center config
+type DeliveryCenterConfig []*DeliveryServerConfig
 
+//CreateDeliveryCenter create delivery center
 func (c *DeliveryCenterConfig) CreateDeliveryCenter() (DeliveryCenter, error) {
 	p := NewPlainDeliveryCenter()
 	for _, v := range *c {

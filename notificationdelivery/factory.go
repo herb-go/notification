@@ -7,6 +7,7 @@ import (
 	"sync"
 )
 
+//Factory delivery driver factory
 type Factory func(loader func(v interface{}) error) (DeliveryDriver, error)
 
 var (

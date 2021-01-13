@@ -82,16 +82,21 @@ func NewAtomicDeliveryCenter() *AtomicDeliveryCenter {
 	return c
 }
 
-func Deliver(c DeliveryCenter, delivery string, content notification.Content) (status DeliveryStatus, receipt string, err error) {
+//Delivery delivery content to delivery center with given keyword
+//Return delivery status,receipt and any error if raised.
+func Delivery(c DeliveryCenter, delivery string, content notification.Content) (status DeliveryStatus, receipt string, err error) {
 	d, err := c.Get(delivery)
 	if err != nil {
 		return 0, "", err
 	}
 	return d.Deliver(content)
 }
-func DeliverNotification(c DeliveryCenter, n *notification.Notification) (status DeliveryStatus, receipt string, err error) {
+
+//DeliveryNotification notification to delivery center with given keyword
+//Return delivery status,receipt and any error if raised.
+func DeliveryNotification(c DeliveryCenter, n *notification.Notification) (status DeliveryStatus, receipt string, err error) {
 	if n.ExpiredTime > 0 && n.ExpiredTime <= time.Now().Unix() {
 		return DeliveryStatusExpired, "", nil
 	}
-	return Deliver(c, n.Delivery, n.Content)
+	return Delivery(c, n.Delivery, n.Content)
 }

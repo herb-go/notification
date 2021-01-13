@@ -52,7 +52,7 @@ func (notifier *Notifier) execute(e *Execution) {
 }
 func (notifier *Notifier) deliver(e *Execution) {
 	defer notifier.Recover()
-	status, msg, err := notifier.deliverNotification(e.Notification)
+	status, msg, err := notifier.deliveryNotification(e.Notification)
 	if err != nil {
 		go notifier.OnError(err)
 		status = notificationdelivery.DeliveryStatusFail
@@ -120,8 +120,8 @@ func (notifier *Notifier) Stop() error {
 	return notifier.queue.Stop()
 }
 
-func (notifier *Notifier) deliverNotification(n *notification.Notification) (status notificationdelivery.DeliveryStatus, receipt string, err error) {
-	return notificationdelivery.DeliverNotification(notifier.DeliveryCenter, n)
+func (notifier *Notifier) deliveryNotification(n *notification.Notification) (status notificationdelivery.DeliveryStatus, receipt string, err error) {
+	return notificationdelivery.DeliveryNotification(notifier.DeliveryCenter, n)
 
 }
 
