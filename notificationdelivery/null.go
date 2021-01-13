@@ -1,5 +1,30 @@
 package notificationdelivery
 
+import "github.com/herb-go/notification"
+
+//DeliveryNull delivery null keyword
+const DeliveryNull = "null"
+
+//NullDelivery delivery do nothing
+type NullDelivery struct {
+}
+
+//DeliveryType Delivery type
+func (d NullDelivery) DeliveryType() string {
+	return DeliveryNull
+}
+
+//MustEscape delivery escape helper
+func (d NullDelivery) MustEscape(unescaped string) string {
+	return unescaped
+}
+
+//Deliver send give content.
+//Return delivery status and any receipt if returned,and any error if raised.
+func (d NullDelivery) Deliver(notification.Content) (status DeliveryStatus, receipt string, err error) {
+	return DeliveryStatusSuccess, "", nil
+}
+
 //NullFactory null factory
 var NullFactory = func(loader func(v interface{}) error) (DeliveryDriver, error) {
 	return NullDelivery{}, nil
@@ -7,7 +32,7 @@ var NullFactory = func(loader func(v interface{}) error) (DeliveryDriver, error)
 
 //RegisterNullFactory register null factory.
 func RegisterNullFactory() {
-	Register("null", NullFactory)
+	Register(DeliveryNull, NullFactory)
 }
 
 func init() {
