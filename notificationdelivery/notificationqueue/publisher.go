@@ -47,7 +47,7 @@ func (publisher *Publisher) Start() error {
 func (publisher *Publisher) Stop() error {
 	err := publisher.Draftbox.Close()
 	if err != nil {
-		publisher.OnError(err)
+		go publisher.OnError(err)
 	}
 	return publisher.Notifier.Stop()
 

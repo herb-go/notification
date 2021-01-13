@@ -29,6 +29,11 @@ func TestError(t *testing.T) {
 	if !strings.Contains(msg, "test") || !strings.Contains(msg, "not supported") {
 		t.Fatal(msg)
 	}
+	ok = IsErrInvalidConditionValue(nil)
+	if ok {
+		t.Fatal(ok)
+	}
+
 	err = NewErrInvalidConditionValue("testvalue")
 	ok = IsErrInvalidConditionValue(err)
 	if !ok {

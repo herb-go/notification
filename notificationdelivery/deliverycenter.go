@@ -1,7 +1,8 @@
-package notificationqueue
+package notificationdelivery
 
 import (
 	"sync/atomic"
+	"time"
 
 	"github.com/herb-go/notification"
 )
@@ -36,6 +37,11 @@ func (c PlainDeliveryCenter) Get(id string) (*notification.DeliveryServer, error
 		return nil, notification.NewErrDeliveryNotFound(id)
 	}
 	return s, nil
+}
+
+//Insert insert delivery server to c
+func (c PlainDeliveryCenter) Insert(d *notification.DeliveryServer) {
+	c[d.DeliveryType()] = d
 }
 
 //NewPlainDeliveryCenter create new plain delivery center
@@ -74,4 +80,18 @@ func NewAtomicDeliveryCenter() *AtomicDeliveryCenter {
 	c := &AtomicDeliveryCenter{}
 	c.SetDeliveryCenter(NewPlainDeliveryCenter())
 	return c
+}
+
+func Deliver(c DeliveryCenter, delivery string, content notification.Content) (status notification.DeliveryStatus, receipt string, err error) {
+	d, err := c.Get(delivery)
+	if err != nil {
+		return 0, "", err
+	}
+	return d.Deliver(content)
+}
+func DeliverNotification(c DeliveryCenter, n *notification.Notification) (status notification.DeliveryStatus, receipt string, err error) {
+	if n.ExpiredTime > 0 && n.ExpiredTime <= time.Now().Unix() {
+		return notification.DeliveryStatusExpired, "", nil
+	}
+	return Deliver(c, n.Delivery, n.Content)
 }

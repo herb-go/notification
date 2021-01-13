@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/herb-go/notification"
-	"github.com/herb-go/notification/notificationqueue"
+	"github.com/herb-go/notification/notificationdelivery/notificationqueue"
 )
 
 var locker sync.Mutex

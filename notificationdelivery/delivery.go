@@ -1,4 +1,6 @@
-package notification
+package notificationdelivery
+
+import "github.com/herb-go/notification"
 
 //DeliveryStatus delivery status type
 type DeliveryStatus int64
@@ -37,7 +39,7 @@ type DeliveryDriver interface {
 	MustEscape(string) string
 	//Deliver send give content.
 	//Return delivery status and any receipt if returned,and any error if raised.
-	Deliver(Content) (status DeliveryStatus, receipt string, err error)
+	Deliver(notification.Content) (status DeliveryStatus, receipt string, err error)
 }
 
 //DeliveryNull delivery null keyword
@@ -59,6 +61,6 @@ func (d NullDelivery) MustEscape(unescaped string) string {
 
 //Deliver send give content.
 //Return delivery status and any receipt if returned,and any error if raised.
-func (d NullDelivery) Deliver(Content) (status DeliveryStatus, receipt string, err error) {
+func (d NullDelivery) Deliver(notification.Content) (status DeliveryStatus, receipt string, err error) {
 	return DeliveryStatusSuccess, "", nil
 }

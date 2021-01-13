@@ -1,9 +1,8 @@
 package notificationqueue
 
 import (
-	"time"
-
 	"github.com/herb-go/notification"
+	"github.com/herb-go/notification/notificationdelivery"
 )
 
 //NopReceiptHanlder nop receipt hanlder
@@ -12,7 +11,7 @@ var NopReceiptHanlder = func(nid string, eid string, reason string, status int32
 //Notifier notifier struct
 type Notifier struct {
 	//DeliveryCenter
-	DeliveryCenter
+	notificationdelivery.DeliveryCenter
 	//Workers push workers num
 	Workers int
 	queue   Queue
@@ -38,7 +37,7 @@ func (notifier *Notifier) Recover() {
 	r := recover()
 	if r != nil {
 		err := r.(error)
-		notifier.OnError(err)
+		go notifier.OnError(err)
 	}
 }
 func (notifier *Notifier) handleReceipt(r *Receipt) {
@@ -122,17 +121,13 @@ func (notifier *Notifier) Stop() error {
 }
 
 func (notifier *Notifier) deliverNotification(n *notification.Notification) (status notification.DeliveryStatus, receipt string, err error) {
-	if n.ExpiredTime > 0 && n.ExpiredTime <= time.Now().Unix() {
-		return notification.DeliveryStatusExpired, "", nil
-	}
-	d, err := notifier.DeliveryCenter.Get(n.Delivery)
-	if err != nil {
-		return 0, "", err
-	}
-	return d.Deliver(n.Content)
+	return notificationdelivery.DeliverNotification(notifier.DeliveryCenter, n)
+
 }
 
 //NewNotifier create new notifier
 func NewNotifier() *Notifier {
-	return &Notifier{}
+	return &Notifier{
+		DeliveryCenter: notificationdelivery.NewAtomicDeliveryCenter(),
+	}
 }
