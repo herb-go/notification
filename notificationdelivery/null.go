@@ -25,6 +25,12 @@ func (d NullDelivery) Deliver(notification.Content) (status DeliveryStatus, rece
 	return DeliveryStatusSuccess, "", nil
 }
 
+//CheckInvalidContent check if content invalid
+//Return invalid fields and any error raised
+func (d NullDelivery) CheckInvalidContent(notification.Content) ([]string, error) {
+	return []string{}, nil
+}
+
 //NullFactory null factory
 var NullFactory = func(loader func(v interface{}) error) (DeliveryDriver, error) {
 	return NullDelivery{}, nil

@@ -34,7 +34,7 @@ func (c PlainDeliveryCenter) List() ([]*DeliveryServer, error) {
 func (c PlainDeliveryCenter) Get(id string) (*DeliveryServer, error) {
 	s, ok := c[id]
 	if !ok || s == nil {
-		return nil, notification.NewErrDeliveryNotFound(id)
+		return nil, NewErrDeliveryNotFound(id)
 	}
 	return s, nil
 }

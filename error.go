@@ -43,16 +43,23 @@ func IsInvalidContentError(err error) bool {
 	return e.Errno == ErrnoInvalidContent
 }
 
-//CheckRequiredContentError check if fields in content.
-//If give fields is not in content,InvalidContentError will be returned.
-//Otherwise nil will be returned.
-func CheckRequiredContentError(c Content, fields []string) error {
+//CheckRequiredContent check if fields in content.
+//If give fields is not in missed fields will be returned.
+func CheckRequiredContent(c Content, fields []string) []string {
 	var missed = []string{}
 	for k := range fields {
 		if c.Get(fields[k]) == "" {
 			missed = append(missed, fields[k])
 		}
 	}
+	return missed
+}
+
+//CheckRequiredContentError check if fields in content.
+//If give fields is not in content,InvalidContentError will be returned.
+//Otherwise nil will be returned.
+func CheckRequiredContentError(c Content, fields []string) error {
+	missed := CheckRequiredContent(c, fields)
 	if len(missed) != 0 {
 		return NewRequiredContentError(missed)
 	}
@@ -82,31 +89,5 @@ func IsErrNotificationIDNotFound(err error) bool {
 		return false
 	}
 	_, ok := err.(*ErrNotificationIDNotFound)
-	return ok
-}
-
-//ErrDeliveryNotFound error raised if given delivery not found
-type ErrDeliveryNotFound struct {
-	Delivery string
-}
-
-//Error return error message
-func (e *ErrDeliveryNotFound) Error() string {
-	return fmt.Sprintf("notification: delivery not found [%s]", e.Delivery)
-}
-
-//NewErrDeliveryNotFound create new ErrDeliveryNotFound
-func NewErrDeliveryNotFound(delivery string) *ErrDeliveryNotFound {
-	return &ErrDeliveryNotFound{
-		Delivery: delivery,
-	}
-}
-
-//IsErrDeliveryNotFound check if given error is ErrDeliveryNotFound.
-func IsErrDeliveryNotFound(err error) bool {
-	if err == nil {
-		return false
-	}
-	_, ok := err.(*ErrDeliveryNotFound)
 	return ok
 }

@@ -121,7 +121,7 @@ func (notifier *Notifier) Stop() error {
 }
 
 func (notifier *Notifier) deliveryNotification(n *notification.Notification) (status notificationdelivery.DeliveryStatus, receipt string, err error) {
-	return notificationdelivery.DeliveryNotification(notifier.DeliveryCenter, n)
+	return notificationdelivery.DeliverNotification(notifier.DeliveryCenter, n)
 
 }
 

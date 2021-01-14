@@ -51,6 +51,9 @@ type DeliveryDriver interface {
 	DeliveryType() string
 	//MustEscape delivery escape helper
 	MustEscape(string) string
+	//CheckInvalidContent check if given content invalid
+	//Return invalid fields and any error raised
+	CheckInvalidContent(notification.Content) ([]string, error)
 	//Deliver send give content.
 	//Return delivery status and any receipt if returned,and any error if raised.
 	Deliver(notification.Content) (status DeliveryStatus, receipt string, err error)

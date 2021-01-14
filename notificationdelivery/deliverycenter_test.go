@@ -25,7 +25,9 @@ func (d *testDelivery) Deliver(c notification.Content) (status DeliveryStatus, r
 	d.data = append(d.data, c)
 	return DeliveryStatusSuccess, strconv.Itoa(len(d.data)), nil
 }
-
+func (d *testDelivery) CheckInvalidContent(notification.Content) ([]string, error) {
+	return []string{}, nil
+}
 func newTestDelivery(id string) *DeliveryServer {
 	s := NewDeliveryServer()
 	s.Delivery = id
@@ -43,7 +45,7 @@ func TestDeliveryCenter(t *testing.T) {
 		t.Fatal(l, err)
 	}
 	d, err := ac.Get("test")
-	if !notification.IsErrDeliveryNotFound(err) || d != nil {
+	if !IsErrDeliveryNotFound(err) || d != nil {
 		t.Fatal(d, err)
 	}
 	ac.SetDeliveryCenter(c)

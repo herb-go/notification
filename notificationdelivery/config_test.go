@@ -9,19 +9,21 @@ import (
 
 func TestConfig(t *testing.T) {
 	c := &DeliveryCenterConfig{
-		&DeliveryServerConfig{
-			Delivery:    "test",
-			Description: "test desc",
-			Config: Config{
-				DeliveryType: "null",
+		Server: []*DeliveryServerConfig{
+			&DeliveryServerConfig{
+				Delivery:    "test",
+				Description: "test desc",
+				Config: Config{
+					DeliveryType: "null",
+				},
 			},
-		},
-		&DeliveryServerConfig{
-			Delivery:    "disabled",
-			Description: "disabled desc",
-			Disabled:    true,
-			Config: Config{
-				DeliveryType: "null",
+			&DeliveryServerConfig{
+				Delivery:    "disabled",
+				Description: "disabled desc",
+				Disabled:    true,
+				Config: Config{
+					DeliveryType: "null",
+				},
 			},
 		},
 	}

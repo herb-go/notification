@@ -39,12 +39,14 @@ func (c *DeliveryServerConfig) CreateDeliverServer() (*DeliveryServer, error) {
 }
 
 //DeliveryCenterConfig plain delivery center config
-type DeliveryCenterConfig []*DeliveryServerConfig
+type DeliveryCenterConfig struct {
+	Server []*DeliveryServerConfig
+}
 
 //CreateDeliveryCenter create delivery center
 func (c *DeliveryCenterConfig) CreateDeliveryCenter() (DeliveryCenter, error) {
 	p := NewPlainDeliveryCenter()
-	for _, v := range *c {
+	for _, v := range c.Server {
 		server, err := v.CreateDeliverServer()
 		if err != nil {
 			return nil, err
