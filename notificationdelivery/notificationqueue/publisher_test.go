@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/herb-go/notification/notificationdelivery"
+
 	"github.com/herb-go/notification"
 	"github.com/herb-go/notification/notificationdelivery/notificationqueue"
 )
@@ -16,20 +18,23 @@ func testOnNotification(n *notification.Notification) {
 
 var loggedErrors []error
 
-func testOnError(err error) {
-	loggedErrors = append(loggedErrors, err)
+func testRecover() {
+	r := recover()
+	if r != nil {
+		err := r.(error)
+		loggedErrors = append(loggedErrors, err)
+	}
 }
 
-var loggerExecution []*notificationqueue.Execution
+var loggedtestReceipt []*notificationqueue.Receipt
 
-func testOnExecution(e *notificationqueue.Execution) {
-	loggerExecution = append(loggerExecution, e)
+func testReceipt(r *notificationqueue.Receipt) {
+	loggedtestReceipt = append(loggedtestReceipt, r)
 }
-
 func initLog() {
 	loggedNotifications = []*notification.Notification{}
 	loggedErrors = []error{}
-	loggerExecution = []*notificationqueue.Execution{}
+	loggedtestReceipt = []*notificationqueue.Receipt{}
 }
 
 func newTestPublisher() *notificationqueue.Publisher {
@@ -40,10 +45,9 @@ func newTestPublisher() *notificationqueue.Publisher {
 	n.DeliveryCenter = newTestDeliveryCenter()
 	n.SetQueue(newTestQueue())
 	p.OnNotification = testOnNotification
-	p.OnExecution = testOnExecution
-	n.DeliveryCenter = newTestDeliveryCenter()
 	p.Draftbox = newTestDraft()
-	p.OnError = testOnError
+	p.Recover = testRecover
+	p.OnReceipt = testReceipt
 	return p
 }
 
@@ -63,26 +67,44 @@ func TestPublisher(t *testing.T) {
 	n := notification.New()
 	n.ID = mustID()
 	n.Header[notification.HeaderNameDraftMode] = "1"
+	n.Header[notification.HeaderNameTarget] = "1"
 	ok, err := p.PublishNotification(n)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
+	time.Sleep(100 * time.Microsecond)
+
 	n2, err := p.PublishDraft(n.ID)
 	if n2.ID != n.ID || err != nil {
 		t.Fatal(n2, err)
 	}
 	n = notification.New()
+	n.Header[notification.HeaderNameTarget] = "2"
 	n.ID = mustID()
 	ok, err = p.PublishNotification(n)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
+	time.Sleep(100 * time.Microsecond)
 	n = notification.New()
+	n.Header[notification.HeaderNameTarget] = "3"
 	n.ID = mustID()
 	n.Delivery = "test1"
 	ok, err = p.PublishNotification(n)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
-	time.Sleep(100 * time.Microsecond)
+	time.Sleep(500 * time.Microsecond)
+	if len(loggedErrors) != 2 || !notificationdelivery.IsErrDeliveryNotFound(loggedErrors[0]) || !notificationdelivery.IsErrDeliveryNotFound(loggedErrors[1]) {
+		t.Fatal(len(loggedErrors))
+	}
+	if len(loggedNotifications) != 3 {
+		t.Fatal(len(loggedNotifications))
+	}
+	if len(loggedtestReceipt) != 3 ||
+		loggedtestReceipt[0].Status != notificationdelivery.DeliveryStatusFail ||
+		loggedtestReceipt[1].Status != notificationdelivery.DeliveryStatusFail ||
+		loggedtestReceipt[2].Status != notificationdelivery.DeliveryStatusSuccess {
+		t.Fatal(len(loggedNotifications))
+	}
 }

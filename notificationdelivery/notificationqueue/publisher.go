@@ -47,7 +47,10 @@ func (publisher *Publisher) Start() error {
 func (publisher *Publisher) Stop() error {
 	err := publisher.Draftbox.Close()
 	if err != nil {
-		go publisher.OnError(err)
+		go func() {
+			defer publisher.Recover()
+			panic(err)
+		}()
 	}
 	return publisher.Notifier.Stop()
 

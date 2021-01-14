@@ -18,12 +18,10 @@ type Notifier struct {
 	c       chan int
 	//OnNotification notification handler
 	OnNotification func(*notification.Notification)
-	//OnExecution execution handler
-	OnExecution func(*Execution)
 	//OnReceipt receipt handler
 	OnReceipt func(*Receipt)
-	//OnError error handler
-	OnError func(error)
+	//Recover recover handler
+	Recover func()
 }
 
 //SetQueue set queue to notifier.
@@ -32,31 +30,21 @@ func (notifier *Notifier) SetQueue(q Queue) {
 	notifier.queue = q
 }
 
-//Recover recover with notifier.OnError
-func (notifier *Notifier) Recover() {
-	r := recover()
-	if r != nil {
-		err := r.(error)
-		go notifier.OnError(err)
-	}
-}
 func (notifier *Notifier) handleReceipt(r *Receipt) {
 	defer notifier.Recover()
 	notifier.OnReceipt(r)
 }
 
-func (notifier *Notifier) execute(e *Execution) {
-	go notifier.OnExecution(e)
-	notifier.deliver(e)
-
-}
 func (notifier *Notifier) deliver(e *Execution) {
 	defer notifier.Recover()
 	status, msg, err := notifier.deliveryNotification(e.Notification)
 	if err != nil {
-		go notifier.OnError(err)
 		status = notificationdelivery.DeliveryStatusFail
 		msg = err.Error()
+		go func() {
+			defer notifier.Recover()
+			panic(err)
+		}()
 	}
 	nid := e.Notification.ID
 	eid := e.ExecutionID
@@ -71,14 +59,14 @@ func (notifier *Notifier) deliver(e *Execution) {
 	}
 	err = notifier.queue.Remove(nid)
 	if err != nil {
-		go notifier.OnError(err)
+		panic(err)
 	}
 }
 func (notifier *Notifier) listen(c chan *Execution) {
 	for {
 		select {
 		case e := <-c:
-			notifier.execute(e)
+			notifier.deliver(e)
 		case <-notifier.c:
 			return
 		}
@@ -92,8 +80,11 @@ func (notifier *Notifier) onNotification(n *notification.Notification) {
 
 //Notify delivery notifiction
 func (notifier *Notifier) Notify(n *notification.Notification) error {
-	go notifier.onNotification(n)
-	return notifier.queue.Push(n)
+	err := notifier.queue.Push(n)
+	if err == nil {
+		go notifier.onNotification(n)
+	}
+	return err
 }
 
 //Start start notifier
