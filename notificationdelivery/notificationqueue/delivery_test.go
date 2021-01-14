@@ -25,7 +25,9 @@ func (d *testDelivery) Deliver(c notification.Content) (status notificationdeliv
 	d.data = append(d.data, c)
 	return notificationdelivery.DeliveryStatusSuccess, strconv.Itoa(len(d.data)), nil
 }
-
+func (d *testDelivery) CheckInvalidContent(notification.Content) ([]string, error) {
+	return []string{}, nil
+}
 func newTestDelivery(id string) *notificationdelivery.DeliveryServer {
 	s := notificationdelivery.NewDeliveryServer()
 	s.Delivery = id
