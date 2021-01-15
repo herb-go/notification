@@ -10,18 +10,22 @@ type Publisher struct {
 	*Notifier
 }
 
-//PublishNotification publish given notification
-//Return if notfication is published.
-func (publisher *Publisher) PublishNotification(n *notification.Notification) (bool, error) {
+//PublishNotification generate notification id and publish given notification
+//Return notification id and if notification is published.
+func (publisher *Publisher) PublishNotification(n *notification.Notification) (string, bool, error) {
+	err := publisher.Notifier.InitNotification(n)
+	if err != nil {
+		return "", false, err
+	}
 	ok, err := publisher.DraftReviewer.ReviewDraft(n)
 	if err != nil {
-		return false, err
+		return "", false, err
 	}
 	if ok {
-		return false, publisher.Draftbox.Draft(n)
+		return n.ID, false, publisher.Draftbox.Draft(n)
 	}
 	err = publisher.Notifier.Notify(n)
-	return err == nil, err
+	return n.ID, err == nil, err
 }
 
 //PublishDraft publish notificaiton by given id.

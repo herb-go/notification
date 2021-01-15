@@ -21,7 +21,7 @@ type Notification struct {
 
 //String return notification info in string format
 func (n *Notification) String() string {
-	return fmt.Sprintf("%s @ %s [ %s ]", n.ID, n.Delivery, n.Header.String())
+	return fmt.Sprintf("%s@%s [ %s ]", n.ID, n.Delivery, n.Header.String())
 }
 
 //New create new notification

@@ -1,6 +1,8 @@
 package notificationqueue
 
 import (
+	"time"
+
 	"github.com/herb-go/notification"
 	"github.com/herb-go/notification/notificationdelivery"
 )
@@ -23,6 +25,8 @@ type Notifier struct {
 	OnDeliverTimeout func(*Execution)
 	//OnRetryTooMany retry toomany handler
 	OnRetryTooMany func(*Execution)
+	//OnExecution execution handler
+	OnExecution func(*Execution)
 	//Recover recover handler
 	Recover func()
 }
@@ -84,15 +88,20 @@ func (notifier *Notifier) onNotification(n *notification.Notification) {
 	defer notifier.Recover()
 	notifier.OnNotification(n)
 }
-
-//Notify delivery notifiction
-func (notifier *Notifier) Notify(n *notification.Notification) error {
+func (notifier *Notifier) InitNotification(n *notification.Notification) error {
 	id, err := notifier.IDGenerator()
 	if err != nil {
 		return err
 	}
 	n.ID = id
-	err = notifier.queue.Push(n)
+	n.CreatedTime = time.Now().Unix()
+	return nil
+}
+
+//Notify delivery notification
+//Notification id  will be returned
+func (notifier *Notifier) Notify(n *notification.Notification) error {
+	err := notifier.queue.Push(n)
 	if err == nil {
 		go notifier.onNotification(n)
 	}
@@ -133,6 +142,7 @@ func (notifier *Notifier) Reset() {
 	notifier.OnReceipt = NopReceiptHanlder
 	notifier.OnDeliverTimeout = NopExecutionHandler
 	notifier.OnRetryTooMany = NopExecutionHandler
+	notifier.OnExecution = NopExecutionHandler
 	notifier.IDGenerator = NopIDGenerator
 }
 

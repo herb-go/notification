@@ -149,7 +149,7 @@ func TestCondition(t *testing.T) {
 	n = notification.New()
 	n.Header.Set(notification.HeaderNameDraftMode, "1")
 	n.ID = mustID()
-	ok, err := p.PublishNotification(n)
+	_, ok, err := p.PublishNotification(n)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
@@ -157,7 +157,7 @@ func TestCondition(t *testing.T) {
 	n.Header.Set(notification.HeaderNameDraftMode, "1")
 	n.Header.Set(notification.HeaderNameBatch, "12345")
 	n.ID = mustID()
-	ok, err = p.PublishNotification(n)
+	_, ok, err = p.PublishNotification(n)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
@@ -165,7 +165,7 @@ func TestCondition(t *testing.T) {
 	n.Header.Set(notification.HeaderNameDraftMode, "1")
 	n.Header.Set(notification.HeaderNameBatch, "12345")
 	n.ID = mustID()
-	ok, err = p.PublishNotification(n)
+	_, ok, err = p.PublishNotification(n)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}

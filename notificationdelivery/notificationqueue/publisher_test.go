@@ -40,14 +40,14 @@ func initLog() {
 func newTestPublisher() *notificationqueue.Publisher {
 	p := notificationqueue.NewPublisher()
 	p.DraftReviewer = notificationqueue.DraftReviewerHeader
-	n := notificationqueue.NewNotifier()
-	p.Notifier = n
+	n := p.Notifier
 	n.DeliveryCenter = newTestDeliveryCenter()
 	n.SetQueue(newTestQueue())
 	p.OnNotification = testOnNotification
 	p.Draftbox = newTestDraft()
 	p.Recover = testRecover
 	p.OnReceipt = testReceipt
+	n.IDGenerator = testIDGenerator
 	return p
 }
 
@@ -73,7 +73,7 @@ func TestPublisher(t *testing.T) {
 	n.ID = mustID()
 	n.Header[notification.HeaderNameDraftMode] = "1"
 	n.Header[notification.HeaderNameTarget] = "1"
-	ok, err = p.PublishNotification(n)
+	_, ok, err = p.PublishNotification(n)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
@@ -86,7 +86,7 @@ func TestPublisher(t *testing.T) {
 	n = notification.New()
 	n.Header[notification.HeaderNameTarget] = "2"
 	n.ID = mustID()
-	ok, err = p.PublishNotification(n)
+	_, ok, err = p.PublishNotification(n)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
@@ -95,20 +95,20 @@ func TestPublisher(t *testing.T) {
 	n.Header[notification.HeaderNameTarget] = "3"
 	n.ID = mustID()
 	n.Delivery = "test1"
-	ok, err = p.PublishNotification(n)
+	_, ok, err = p.PublishNotification(n)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	time.Sleep(500 * time.Millisecond)
-	if len(loggedErrors) != 2 || !notificationdelivery.IsErrDeliveryNotFound(loggedErrors[0]) || !notificationdelivery.IsErrDeliveryNotFound(loggedErrors[1]) {
+	if len(loggedErrors) != 0 {
 		t.Fatal(len(loggedErrors))
 	}
 	if len(loggedNotifications) != 3 {
 		t.Fatal(len(loggedNotifications))
 	}
 	if len(loggedtestReceipt) != 3 ||
-		loggedtestReceipt[0].Status != notificationdelivery.DeliveryStatusFail ||
-		loggedtestReceipt[1].Status != notificationdelivery.DeliveryStatusFail ||
+		loggedtestReceipt[0].Status != notificationdelivery.DeliveryStatusAbort ||
+		loggedtestReceipt[1].Status != notificationdelivery.DeliveryStatusAbort ||
 		loggedtestReceipt[2].Status != notificationdelivery.DeliveryStatusSuccess {
 		t.Fatal(len(loggedNotifications))
 	}
