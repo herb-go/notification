@@ -48,3 +48,10 @@ func TestError(t *testing.T) {
 		t.Fatal(ok)
 	}
 }
+
+func TestNopIDGenerator(t *testing.T) {
+	s, err := NopIDGenerator()
+	if s != "" || err != ErrIDGeneratorRequired {
+		t.Fatal(s, err)
+	}
+}

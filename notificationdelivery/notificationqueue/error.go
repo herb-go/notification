@@ -1,6 +1,9 @@
 package notificationqueue
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 //ErrConditionNotSupported error rasied when condition not supproted
 type ErrConditionNotSupported struct {
@@ -53,3 +56,12 @@ func IsErrInvalidConditionValue(err error) bool {
 	_, ok := err.(*ErrInvalidConditionValue)
 	return ok
 }
+
+//ErrQueueDriverRequired queue driver required error.
+var ErrQueueDriverRequired = errors.New("queue driver required")
+
+//ErrDraftBoxRequired draft box required
+var ErrDraftBoxRequired = errors.New("draft box required")
+
+//ErrIDGeneratorRequired id generator required
+var ErrIDGeneratorRequired = errors.New("id generator required")

@@ -5,9 +5,6 @@ import (
 	"github.com/herb-go/notification/notificationdelivery"
 )
 
-//NopReceiptHanlder nop receipt hanlder
-var NopReceiptHanlder = func(nid string, eid string, reason string, status int32) {}
-
 //Notifier notifier struct
 type Notifier struct {
 	//DeliveryCenter
@@ -16,10 +13,16 @@ type Notifier struct {
 	Workers int
 	queue   Queue
 	c       chan int
+	//IDGenerator id generator
+	IDGenerator func() (string, error)
 	//OnNotification notification handler
 	OnNotification func(*notification.Notification)
 	//OnReceipt receipt handler
 	OnReceipt func(*Receipt)
+	//OnDeliverTimeout deliver timeout handler
+	OnDeliverTimeout func(*Execution)
+	//OnRetryTooMany retry toomany handler
+	OnRetryTooMany func(*Execution)
 	//Recover recover handler
 	Recover func()
 }
@@ -30,6 +33,10 @@ func (notifier *Notifier) SetQueue(q Queue) {
 	notifier.queue = q
 }
 
+//Queue return notifier queue.
+func (notifier *Notifier) Queue() Queue {
+	return notifier.queue
+}
 func (notifier *Notifier) handleReceipt(r *Receipt) {
 	defer notifier.Recover()
 	notifier.OnReceipt(r)
@@ -62,7 +69,7 @@ func (notifier *Notifier) deliver(e *Execution) {
 		panic(err)
 	}
 }
-func (notifier *Notifier) listen(c chan *Execution) {
+func (notifier *Notifier) listen(c <-chan *Execution) {
 	for {
 		select {
 		case e := <-c:
@@ -80,7 +87,12 @@ func (notifier *Notifier) onNotification(n *notification.Notification) {
 
 //Notify delivery notifiction
 func (notifier *Notifier) Notify(n *notification.Notification) error {
-	err := notifier.queue.Push(n)
+	id, err := notifier.IDGenerator()
+	if err != nil {
+		return err
+	}
+	n.ID = id
+	err = notifier.queue.Push(n)
 	if err == nil {
 		go notifier.onNotification(n)
 	}
@@ -113,12 +125,23 @@ func (notifier *Notifier) Stop() error {
 
 func (notifier *Notifier) deliveryNotification(n *notification.Notification) (status notificationdelivery.DeliveryStatus, receipt string, err error) {
 	return notificationdelivery.DeliverNotification(notifier.DeliveryCenter, n)
+}
 
+//Reset reset notifier handlers
+func (notifier *Notifier) Reset() {
+	notifier.OnNotification = NopNotificationHandler
+	notifier.OnReceipt = NopReceiptHanlder
+	notifier.OnDeliverTimeout = NopExecutionHandler
+	notifier.OnRetryTooMany = NopExecutionHandler
+	notifier.IDGenerator = NopIDGenerator
 }
 
 //NewNotifier create new notifier
 func NewNotifier() *Notifier {
-	return &Notifier{
+	n := &Notifier{
+		queue:          &NopQueue{},
 		DeliveryCenter: notificationdelivery.NewAtomicDeliveryCenter(),
 	}
+	n.Reset()
+	return n
 }

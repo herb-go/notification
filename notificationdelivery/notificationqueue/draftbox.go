@@ -82,3 +82,45 @@ func (f DraftReviewerFunc) ReviewDraft(n *notification.Notification) (publishabl
 var DraftReviewerHeader = DraftReviewerFunc(func(n *notification.Notification) (publishable bool, err error) {
 	return n.Header.Get(notification.HeaderNameDraftMode) != "", nil
 })
+
+//NopDraftbox nop draft box
+type NopDraftbox struct{}
+
+//Open open draftbox and return any error if raised
+func (b *NopDraftbox) Open() error {
+	return ErrDraftBoxRequired
+}
+
+//Close close draftbox and return any error if raised
+func (b *NopDraftbox) Close() error {
+	return ErrDraftBoxRequired
+}
+
+//Draft save given notificaiton to draft box.
+//Notification with same id will be overwritten.
+func (b *NopDraftbox) Draft(notification *notification.Notification) error {
+	return ErrDraftBoxRequired
+}
+
+//List list no more than count notifactions in draftbox with given search conditions form start position .
+//Count should be greater than 0.
+//Found notifications and next list position iter will be returned.
+//Return largest id notification if asc is false.
+func (b *NopDraftbox) List(condition []*Condition, start string, asc bool, count int) (result []*notification.Notification, iter string, err error) {
+	return nil, "", ErrDraftBoxRequired
+}
+
+//Count draft box with given search conditions
+func (b *NopDraftbox) Count(condition []*Condition) (int, error) {
+	return 0, ErrDraftBoxRequired
+}
+
+//SupportedConditions return supported condition keyword list
+func (b *NopDraftbox) SupportedConditions() ([]string, error) {
+	return nil, ErrDraftBoxRequired
+}
+
+//Eject remove notification by given id and return removed notification.
+func (b *NopDraftbox) Eject(id string) (*notification.Notification, error) {
+	return nil, ErrDraftBoxRequired
+}

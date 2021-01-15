@@ -87,6 +87,9 @@ func NewAtomicDeliveryCenter() *AtomicDeliveryCenter {
 func Deliver(c DeliveryCenter, delivery string, content notification.Content) (status DeliveryStatus, receipt string, err error) {
 	d, err := c.Get(delivery)
 	if err != nil {
+		if IsErrDeliveryNotFound(err) {
+			return DeliveryStatusAbort, err.Error(), nil
+		}
 		return 0, "", err
 	}
 	return d.Deliver(content)

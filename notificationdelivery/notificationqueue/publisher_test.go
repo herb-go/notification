@@ -54,6 +54,11 @@ func newTestPublisher() *notificationqueue.Publisher {
 func TestPublisher(t *testing.T) {
 	initLog()
 	p := newTestPublisher()
+	q := p.Queue()
+	_, ok := q.(testQueue)
+	if !ok {
+		t.Fatal(q)
+	}
 	err := p.Start()
 	if err != nil {
 		panic(err)
@@ -68,11 +73,11 @@ func TestPublisher(t *testing.T) {
 	n.ID = mustID()
 	n.Header[notification.HeaderNameDraftMode] = "1"
 	n.Header[notification.HeaderNameTarget] = "1"
-	ok, err := p.PublishNotification(n)
+	ok, err = p.PublishNotification(n)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
-	time.Sleep(100 * time.Microsecond)
+	time.Sleep(100 * time.Millisecond)
 
 	n2, err := p.PublishDraft(n.ID)
 	if n2.ID != n.ID || err != nil {
@@ -85,7 +90,7 @@ func TestPublisher(t *testing.T) {
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
-	time.Sleep(100 * time.Microsecond)
+	time.Sleep(100 * time.Millisecond)
 	n = notification.New()
 	n.Header[notification.HeaderNameTarget] = "3"
 	n.ID = mustID()
@@ -94,7 +99,7 @@ func TestPublisher(t *testing.T) {
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
-	time.Sleep(500 * time.Microsecond)
+	time.Sleep(500 * time.Millisecond)
 	if len(loggedErrors) != 2 || !notificationdelivery.IsErrDeliveryNotFound(loggedErrors[0]) || !notificationdelivery.IsErrDeliveryNotFound(loggedErrors[1]) {
 		t.Fatal(len(loggedErrors))
 	}

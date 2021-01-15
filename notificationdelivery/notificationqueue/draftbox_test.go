@@ -234,3 +234,36 @@ func TestCondition(t *testing.T) {
 		t.Fatal(result, iter, err)
 	}
 }
+
+func TestNopDraftbox(t *testing.T) {
+	var err error
+	d := &notificationqueue.NopDraftbox{}
+	err = d.Open()
+	if err != notificationqueue.ErrDraftBoxRequired {
+		t.Fatal(err)
+	}
+	err = d.Close()
+	if err != notificationqueue.ErrDraftBoxRequired {
+		t.Fatal(err)
+	}
+	_, err = d.Count(nil)
+	if err != notificationqueue.ErrDraftBoxRequired {
+		t.Fatal(err)
+	}
+	_, _, err = d.List(nil, "", true, 0)
+	if err != notificationqueue.ErrDraftBoxRequired {
+		t.Fatal(err)
+	}
+	err = d.Draft(notification.New())
+	if err != notificationqueue.ErrDraftBoxRequired {
+		t.Fatal(err)
+	}
+	_, err = d.Eject("notexsit")
+	if err != notificationqueue.ErrDraftBoxRequired {
+		t.Fatal(err)
+	}
+	_, err = d.SupportedConditions()
+	if err != notificationqueue.ErrDraftBoxRequired {
+		t.Fatal(err)
+	}
+}
