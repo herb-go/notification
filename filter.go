@@ -128,6 +128,18 @@ func NewFilter() *PlainFilter {
 	return &PlainFilter{}
 }
 
+//PlainFilterSupportedConditions plain filter suppoerted conditions
+var PlainFilterSupportedConditions = []string{
+	ConditionBatch,
+	ConditionNotificationID,
+	ConditionDelivery,
+	ConditionTarget,
+	ConditionTopic,
+	ConditionInContent,
+	ConditionBeforeTimestamp,
+	ConditionAfterTimestamp,
+}
+
 //ApplyToFilter apply condiitons to filter.
 func ApplyToFilter(f Filter, conds []*Condition) error {
 	for k := range conds {
