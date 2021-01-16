@@ -14,6 +14,8 @@ const (
 	HeaderNameMessage = "mesasge"
 	//HeaderNameTopic header name for message topic
 	HeaderNameTopic = "topic"
+	//HeaderNameSender header name for message sender
+	HeaderNameSender = "sender"
 	//HeaderNameDraftMode header name for draft-mode
 	HeaderNameDraftMode = "draftmode"
 )
@@ -37,7 +39,9 @@ func (h Header) Get(name string) string {
 func (h Header) String() string {
 	v := url.Values{}
 	for k := range h {
-		v.Set(k, h[k])
+		if h[k] != "" {
+			v.Set(k, h[k])
+		}
 	}
 	return v.Encode()
 }

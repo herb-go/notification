@@ -1,6 +1,12 @@
 package notification
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
+
+//SuggestedNotificationTTL suggrested notification ttl
+var SuggestedNotificationTTL = 24 * time.Hour
 
 //Notification notification struct
 type Notification struct {
@@ -8,9 +14,9 @@ type Notification struct {
 	ID string
 	//Delivery notification delivery keyword
 	Delivery string
-	//CreatedTime notification created unix timesmtap
+	//CreatedTime notification created unix timestmamp
 	CreatedTime int64
-	//ExpiredTime notification expired unix timesmtap
+	//ExpiredTime notification expired unix timestamp
 	//ExpiredTime 0 or less than 0 means never expired
 	ExpiredTime int64
 	//Header notification header
