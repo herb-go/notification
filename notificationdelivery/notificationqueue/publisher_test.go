@@ -39,7 +39,7 @@ func initLog() {
 
 func newTestPublisher() *notificationqueue.Publisher {
 	p := notificationqueue.NewPublisher()
-	p.DraftReviewer = notificationqueue.DraftReviewerHeader
+	p.DraftReviewer = notificationqueue.CheckerDraftModeHeader
 	n := p.Notifier
 	n.DeliveryCenter = newTestDeliveryCenter()
 	n.SetQueue(newTestQueue())

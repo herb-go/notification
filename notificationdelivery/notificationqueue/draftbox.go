@@ -62,26 +62,7 @@ type Draftbox interface {
 	Eject(id string) (*notification.Notification, error)
 }
 
-//DraftReviewer draft reviewer interface
-type DraftReviewer interface {
-	//ReviewDraft review if given notification should be published or put in draft box.
-	//Return true if notification should be published immediately.
-	ReviewDraft(*notification.Notification) (publishable bool, err error)
-}
-
-//DraftReviewerFunc draft reviewer func interface
-type DraftReviewerFunc func(*notification.Notification) (publishable bool, err error)
-
-//ReviewDraft review if given notification should be published or put in draft box.
-//Return true if notification should be published immediately.
-func (f DraftReviewerFunc) ReviewDraft(n *notification.Notification) (publishable bool, err error) {
-	return f(n)
-}
-
-//DraftReviewerHeader draft reviewer based on notification header
-var DraftReviewerHeader = DraftReviewerFunc(func(n *notification.Notification) (publishable bool, err error) {
-	return n.Header.Get(notification.HeaderNameDraftMode) != "", nil
-})
+var CheckerDraftModeHeader = notification.HasHeaderChecker(notification.HeaderNameDraftMode)
 
 //NopDraftbox nop draft box
 type NopDraftbox struct{}

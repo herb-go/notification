@@ -4,8 +4,10 @@ import "github.com/herb-go/notification"
 
 //Publisher publisher struct
 type Publisher struct {
-	//DraftReviewer default value DraftReviewerHeader
-	DraftReviewer DraftReviewer
+	//DraftReviewer checker that check if given notification should be published or put in draft box.
+	//Return true if notification should sendt to draftbox
+	//Default value is CheckerDraftModeHeader
+	DraftReviewer notification.Checker
 	Draftbox      Draftbox
 	*Notifier
 }
@@ -17,7 +19,7 @@ func (publisher *Publisher) PublishNotification(n *notification.Notification) (s
 	if err != nil {
 		return "", false, err
 	}
-	ok, err := publisher.DraftReviewer.ReviewDraft(n)
+	ok, err := publisher.DraftReviewer.Check(n)
 	if err != nil {
 		return "", false, err
 	}
@@ -63,7 +65,7 @@ func (publisher *Publisher) Stop() error {
 //NewPublisher create new publisher
 func NewPublisher() *Publisher {
 	return &Publisher{
-		DraftReviewer: DraftReviewerHeader,
+		DraftReviewer: CheckerDraftModeHeader,
 		Notifier:      NewNotifier(),
 	}
 }
