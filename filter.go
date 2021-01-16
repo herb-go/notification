@@ -3,13 +3,24 @@ package notification
 import (
 	"strconv"
 	"strings"
+	"time"
 )
+
+type ConditionContext struct {
+	Time time.Time
+}
+
+func NewConditionContext() *ConditionContext {
+	return &ConditionContext{
+		Time: time.Now(),
+	}
+}
 
 //Filter notification filter interface
 type Filter interface {
 	//FilterNotification filter notification with given timestamp
 	//Return if notification is valid
-	FilterNotification(n *Notification, ts int64) (bool, error)
+	FilterNotification(n *Notification, ctx *ConditionContext) (bool, error)
 	//ApplyCondition apply search condition to filter
 	//ErrConditionNotSupported should be returned if condition keyword is not supported
 	ApplyCondition(cond *Condition) error
@@ -63,7 +74,7 @@ func (c *PlainFilter) ApplyCondition(cond *Condition) error {
 
 //FilterNotification filter notification with given timestamp
 //Return if notification is valid
-func (c *PlainFilter) FilterNotification(n *Notification, ts int64) (bool, error) {
+func (c *PlainFilter) FilterNotification(n *Notification, ctx *ConditionContext) (bool, error) {
 	if c.BatchID != "" && n.Header.Get(HeaderNameBatch) != c.BatchID {
 		return false, nil
 	}
@@ -91,10 +102,10 @@ func (c *PlainFilter) FilterNotification(n *Notification, ts int64) (bool, error
 			return false, nil
 		}
 	}
-	if c.After > 0 && c.After <= ts {
+	if c.After > 0 && c.After <= ctx.Time.Unix() {
 		return false, nil
 	}
-	if c.Before > 0 && c.Before >= ts {
+	if c.Before > 0 && c.Before >= ctx.Time.Unix() {
 		return false, nil
 	}
 	return true, nil
