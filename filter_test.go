@@ -237,4 +237,28 @@ func TestFilter(t *testing.T) {
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
+
+	f = NewFilter()
+	err = ApplyToFilter(f, []*Condition{&Condition{Keyword: ConditionSender, Value: "12345"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if f.Sender != "12345" {
+		t.Fatal(f)
+	}
+	n = New()
+	ok, err = f.FilterNotification(n, ts100000)
+	if ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	n.Header.Set(HeaderNameSender, "12345")
+	ok, err = f.FilterNotification(n, ts100000)
+	if !ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	n.Header.Set(HeaderNameSender, "123456")
+	ok, err = f.FilterNotification(n, ts100000)
+	if ok || err != nil {
+		t.Fatal(ok, err)
+	}
 }

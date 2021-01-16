@@ -33,6 +33,7 @@ type PlainFilter struct {
 	Delivery       string
 	Target         string
 	Topic          string
+	Sender         string
 	InContent      string
 	After          int64
 	Before         int64
@@ -50,6 +51,8 @@ func (c *PlainFilter) ApplyCondition(cond *Condition) error {
 		c.Delivery = cond.Value
 	case ConditionTarget:
 		c.Target = cond.Value
+	case ConditionSender:
+		c.Sender = cond.Value
 	case ConditionTopic:
 		c.Topic = cond.Value
 	case ConditionInContent:
@@ -82,6 +85,9 @@ func (c *PlainFilter) FilterNotification(n *Notification, ctx *ConditionContext)
 		return false, nil
 	}
 	if c.Delivery != "" && n.Delivery != c.Delivery {
+		return false, nil
+	}
+	if c.Sender != "" && n.Header.Get(HeaderNameSender) != c.Sender {
 		return false, nil
 	}
 	if c.Target != "" && n.Header.Get(HeaderNameTarget) != c.Target {
