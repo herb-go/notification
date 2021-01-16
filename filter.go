@@ -37,6 +37,7 @@ type PlainFilter struct {
 	InContent      string
 	After          int64
 	Before         int64
+	Expired        bool
 }
 
 //ApplyCondition apply search condition to filter
@@ -69,6 +70,8 @@ func (c *PlainFilter) ApplyCondition(cond *Condition) error {
 			return NewErrInvalidConditionValue(ConditionBeforeTimestamp)
 		}
 		c.Before = ts
+	case ConditionExpired:
+		c.Expired = (cond.Value != "")
 	default:
 		return NewErrConditionNotSupported(cond.Keyword)
 	}
@@ -108,10 +111,13 @@ func (c *PlainFilter) FilterNotification(n *Notification, ctx *ConditionContext)
 			return false, nil
 		}
 	}
-	if c.After > 0 && c.After <= ctx.Time.Unix() {
+	if c.After > 0 && n.CreatedTime <= c.After {
 		return false, nil
 	}
-	if c.Before > 0 && c.Before >= ctx.Time.Unix() {
+	if c.Before > 0 && n.CreatedTime >= c.Before {
+		return false, nil
+	}
+	if c.Expired && n.ExpiredTime <= ctx.Time.Unix() {
 		return false, nil
 	}
 	return true, nil

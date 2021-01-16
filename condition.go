@@ -27,6 +27,9 @@ const (
 
 	//ConditionAfterTimestamp store serach condition keyword for notification created-time after given timestamp
 	ConditionAfterTimestamp = "aftertimestamp"
+
+	//ConditionExpired store serach condition keyword for notification expired before given timestamp
+	ConditionExpired = "expired"
 )
 
 //Condition store search condition

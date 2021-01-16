@@ -10,6 +10,7 @@ func TestFilter(t *testing.T) {
 	var err error
 	var ok bool
 	var cond []*Condition
+	ts := NewConditionContext()
 	ts100000 := NewConditionContext()
 	ts100000.Time = time.Unix(100000, 0)
 	ts100001 := NewConditionContext()
@@ -22,7 +23,7 @@ func TestFilter(t *testing.T) {
 		t.Fatal(f)
 	}
 	n = New()
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
@@ -49,16 +50,19 @@ func TestFilter(t *testing.T) {
 		t.Fatal(f)
 	}
 	n = New()
-	ok, err = f.FilterNotification(n, ts99999)
+	n.CreatedTime = 99999
+	ok, err = f.FilterNotification(n, ts)
+	if ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	n.CreatedTime = 100000
+	ok, err = f.FilterNotification(n, ts)
+	if ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	n.CreatedTime = 100001
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
-		t.Fatal(ok, err)
-	}
-	ok, err = f.FilterNotification(n, ts100000)
-	if ok || err != nil {
-		t.Fatal(ok, err)
-	}
-	ok, err = f.FilterNotification(n, ts100001)
-	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
 
@@ -71,16 +75,19 @@ func TestFilter(t *testing.T) {
 		t.Fatal(f)
 	}
 	n = New()
-	ok, err = f.FilterNotification(n, ts99999)
-	if ok || err != nil {
-		t.Fatal(ok, err)
-	}
-	ok, err = f.FilterNotification(n, ts100000)
-	if ok || err != nil {
-		t.Fatal(ok, err)
-	}
-	ok, err = f.FilterNotification(n, ts100001)
+	n.CreatedTime = 99999
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	n.CreatedTime = 100000
+	ok, err = f.FilterNotification(n, ts)
+	if ok || err != nil {
+		t.Fatal(ok, err)
+	}
+	n.CreatedTime = 1000001
+	ok, err = f.FilterNotification(n, ts)
+	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
 
@@ -93,27 +100,27 @@ func TestFilter(t *testing.T) {
 		t.Fatal(f)
 	}
 	n = New()
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Content.Set("content1", "value1")
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Content.Set("content1", "searchfor")
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Content.Set("content1", "asearchfora")
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Content.Set("content2", "asearchfora")
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
@@ -127,17 +134,17 @@ func TestFilter(t *testing.T) {
 		t.Fatal(f)
 	}
 	n = New()
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Delivery = "12345"
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Delivery = "123456"
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
@@ -151,17 +158,17 @@ func TestFilter(t *testing.T) {
 		t.Fatal(f)
 	}
 	n = New()
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.ID = "12345"
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.ID = "123456"
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
@@ -175,17 +182,17 @@ func TestFilter(t *testing.T) {
 		t.Fatal(f)
 	}
 	n = New()
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Header.Set(HeaderNameBatch, "12345")
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Header.Set(HeaderNameBatch, "123456")
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
@@ -199,17 +206,17 @@ func TestFilter(t *testing.T) {
 		t.Fatal(f)
 	}
 	n = New()
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Header.Set(HeaderNameTopic, "12345")
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Header.Set(HeaderNameTopic, "123456")
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
@@ -223,17 +230,17 @@ func TestFilter(t *testing.T) {
 		t.Fatal(f)
 	}
 	n = New()
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Header.Set(HeaderNameTarget, "12345")
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Header.Set(HeaderNameTarget, "123456")
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
@@ -246,19 +253,44 @@ func TestFilter(t *testing.T) {
 	if f.Sender != "12345" {
 		t.Fatal(f)
 	}
+
 	n = New()
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Header.Set(HeaderNameSender, "12345")
-	ok, err = f.FilterNotification(n, ts100000)
+	ok, err = f.FilterNotification(n, ts)
 	if !ok || err != nil {
 		t.Fatal(ok, err)
 	}
 	n.Header.Set(HeaderNameSender, "123456")
+	ok, err = f.FilterNotification(n, ts)
+	if ok || err != nil {
+		t.Fatal(ok, err)
+	}
+
+	f = NewFilter()
+	err = ApplyToFilter(f, []*Condition{&Condition{Keyword: ConditionExpired, Value: "true"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if f.Expired != true {
+		t.Fatal(f)
+	}
+	n = New()
+	n.ExpiredTime = 100000
+	ok, err = f.FilterNotification(n, ts99999)
+	if !ok || err != nil {
+		t.Fatal(ok, err)
+	}
 	ok, err = f.FilterNotification(n, ts100000)
 	if ok || err != nil {
 		t.Fatal(ok, err)
 	}
+	ok, err = f.FilterNotification(n, ts100001)
+	if ok || err != nil {
+		t.Fatal(ok, err)
+	}
+
 }
