@@ -1,27 +1,28 @@
-package notificationqueue_test
+package notification_test
 
 import (
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/herb-go/notification"
 )
 
-type testDraft struct {
+type testStore struct {
 	locker sync.Mutex
 	data   []*notification.Notification
 }
 
-func (d *testDraft) Open() error {
+func (d *testStore) Open() error {
 	return nil
 }
-func (d *testDraft) Close() error {
+func (d *testStore) Close() error {
 	return nil
 }
-func (d *testDraft) Save(notification *notification.Notification) error {
-	locker.Lock()
-	defer locker.Unlock()
+func (d *testStore) Save(notification *notification.Notification) error {
+	d.locker.Lock()
+	defer d.locker.Unlock()
 	for k := range d.data {
 		if d.data[k].ID == notification.ID {
 			d.data[k] = notification
@@ -31,9 +32,9 @@ func (d *testDraft) Save(notification *notification.Notification) error {
 	d.data = append(d.data, notification)
 	return nil
 }
-func (d *testDraft) List(condition []*notification.Condition, iter string, asc bool, count int) (result []*notification.Notification, newiter string, err error) {
-	locker.Lock()
-	defer locker.Unlock()
+func (d *testStore) List(condition []*notification.Condition, iter string, asc bool, count int) (result []*notification.Notification, newiter string, err error) {
+	d.locker.Lock()
+	defer d.locker.Unlock()
 	var start int
 	var step int
 	var end int
@@ -90,9 +91,9 @@ func (d *testDraft) List(condition []*notification.Condition, iter string, asc b
 	}
 	return result, "", nil
 }
-func (d *testDraft) Count(condition []*notification.Condition) (int, error) {
-	locker.Lock()
-	defer locker.Unlock()
+func (d *testStore) Count(condition []*notification.Condition) (int, error) {
+	d.locker.Lock()
+	defer d.locker.Unlock()
 	var batch = ""
 	for _, v := range condition {
 		if v.Keyword == notification.ConditionBatch {
@@ -113,10 +114,10 @@ func (d *testDraft) Count(condition []*notification.Condition) (int, error) {
 	}
 	return count, nil
 }
-func (d *testDraft) SupportedConditions() ([]string, error) {
+func (d *testStore) SupportedConditions() ([]string, error) {
 	return []string{notification.ConditionBatch}, nil
 }
-func (d *testDraft) Remove(id string) (*notification.Notification, error) {
+func (d *testStore) Eject(id string) (*notification.Notification, error) {
 	for k := range d.data {
 		if d.data[k].ID == id {
 			n := d.data[k]
@@ -127,72 +128,66 @@ func (d *testDraft) Remove(id string) (*notification.Notification, error) {
 	return nil, notification.NewErrNotificationIDNotFound(id)
 }
 
-func newTestDraft() *testDraft {
-	return &testDraft{}
+func newTestStore() *testStore {
+	return &testStore{}
 }
 
+var current int64
+
+func mustID() string {
+	c := atomic.AddInt64(&current, 1)
+	return strconv.FormatInt(c, 10)
+}
 func TestCondition(t *testing.T) {
+	var store = newTestStore()
 	var n *notification.Notification
-	initLog()
-	p := newTestPublisher()
-	err := p.Start()
+	n = notification.New()
+	n.Header.Set(notification.HeaderNameDraftMode, "1")
+	n.ID = mustID()
+	err := store.Save(n)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
-	defer func() {
-		err := p.Stop()
-		if err != nil {
-			panic(err)
-		}
-	}()
 	n = notification.New()
 	n.Header.Set(notification.HeaderNameDraftMode, "1")
-	n.ID = mustID()
-	_, ok, err := p.PublishNotification(n)
-	if ok || err != nil {
-		t.Fatal(ok, err)
+	n.Header.Set(notification.HeaderNameBatch, "12345")
+	err = store.Save(n)
+	if err != nil {
+		t.Fatal(err)
 	}
 	n = notification.New()
 	n.Header.Set(notification.HeaderNameDraftMode, "1")
 	n.Header.Set(notification.HeaderNameBatch, "12345")
 	n.ID = mustID()
-	_, ok, err = p.PublishNotification(n)
-	if ok || err != nil {
-		t.Fatal(ok, err)
+	err = store.Save(n)
+	if err != nil {
+		t.Fatal(err)
 	}
-	n = notification.New()
-	n.Header.Set(notification.HeaderNameDraftMode, "1")
-	n.Header.Set(notification.HeaderNameBatch, "12345")
-	n.ID = mustID()
-	_, ok, err = p.PublishNotification(n)
-	if ok || err != nil {
-		t.Fatal(ok, err)
-	}
-	count, err := p.Draftbox.Count(nil)
+	count, err := store.Count(nil)
 	if count != 3 || err != nil {
 		t.Fatal(count, err)
 	}
-	result, iter, err := p.Draftbox.List(nil, "", true, 0)
+	result, iter, err := store.List(nil, "", true, 0)
 	if len(result) != 3 || iter != "" || err != nil {
 		t.Fatal(result, iter, err)
 	}
-	result, iter, err = p.Draftbox.List(nil, "", true, 2)
+	result, iter, err = store.List(nil, "", true, 2)
 	if len(result) != 2 || iter != "1" || err != nil {
 		t.Fatal(result, iter, err)
 	}
-	result, iter, err = p.Draftbox.List(nil, "", false, 1)
+	result, iter, err = store.List(nil, "", false, 1)
 	if len(result) != 1 || iter != "2" || err != nil {
 		t.Fatal(result, iter, err)
 	}
-	result, iter, err = p.Draftbox.List(nil, "2", false, 1)
+	result, iter, err = store.List(nil, "2", false, 1)
 	if len(result) != 1 || iter != "1" || err != nil {
 		t.Fatal(result, iter, err)
 	}
-	result, iter, err = p.Draftbox.List(nil, "1", false, 1)
+	result, iter, err = store.List(nil, "1", false, 1)
 	if len(result) != 1 || iter != "0" || err != nil {
 		t.Fatal(result, iter, err)
 	}
-	result, iter, err = p.Draftbox.List(nil, "0", false, 1)
+	result, iter, err = store.List(nil, "0", false, 1)
 	if len(result) != 0 || iter != "" || err != nil {
 		t.Fatal(result, iter, err)
 	}
@@ -200,11 +195,11 @@ func TestCondition(t *testing.T) {
 		Keyword: notification.ConditionBatch,
 		Value:   "12345",
 	}}
-	count, err = p.Draftbox.Count(cond)
+	count, err = store.Count(cond)
 	if count != 2 || err != nil {
 		t.Fatal(count, err)
 	}
-	result, iter, err = p.Draftbox.List(cond, "", true, 0)
+	result, iter, err = store.List(cond, "", true, 0)
 	if len(result) != 2 || iter != "" || err != nil {
 		t.Fatal(result, iter, err)
 	}
@@ -212,11 +207,11 @@ func TestCondition(t *testing.T) {
 		Keyword: notification.ConditionBatch,
 		Value:   "notfound",
 	}}
-	count, err = p.Draftbox.Count(cond)
+	count, err = store.Count(cond)
 	if count != 0 || err != nil {
 		t.Fatal(count, err)
 	}
-	result, iter, err = p.Draftbox.List(cond, "", true, 0)
+	result, iter, err = store.List(cond, "", true, 0)
 	if len(result) != 0 || iter != "" || err != nil {
 		t.Fatal(result, iter, err)
 	}
@@ -224,12 +219,45 @@ func TestCondition(t *testing.T) {
 		Keyword: "notfound",
 		Value:   "notfound",
 	}}
-	count, err = p.Draftbox.Count(cond)
+	count, err = store.Count(cond)
 	if !notification.IsErrConditionNotSupported(err) {
 		t.Fatal(result, iter, err)
 	}
-	result, iter, err = p.Draftbox.List(cond, "", true, 0)
+	result, iter, err = store.List(cond, "", true, 0)
 	if !notification.IsErrConditionNotSupported(err) {
 		t.Fatal(result, iter, err)
+	}
+}
+
+func TestNopStore(t *testing.T) {
+	var err error
+	d := &notification.NopStore{}
+	err = d.Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = d.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = d.Count(nil)
+	if err != notification.ErrStoreFeatureNotSupported {
+		t.Fatal(err)
+	}
+	_, _, err = d.List(nil, "", true, 0)
+	if err != notification.ErrStoreFeatureNotSupported {
+		t.Fatal(err)
+	}
+	err = d.Save(notification.New())
+	if err != notification.ErrStoreFeatureNotSupported {
+		t.Fatal(err)
+	}
+	_, err = d.Remove("notexsit")
+	if err != notification.ErrStoreFeatureNotSupported {
+		t.Fatal(err)
+	}
+	_, err = d.SupportedConditions()
+	if err != notification.ErrStoreFeatureNotSupported {
+		t.Fatal(err)
 	}
 }

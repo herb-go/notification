@@ -8,7 +8,7 @@ type Publisher struct {
 	//Return true if notification should sendt to draftbox
 	//Default value is CheckerDraftModeHeader
 	DraftReviewer notification.Checker
-	Draftbox      Draftbox
+	Draftbox      notification.Store
 	*Notifier
 }
 
@@ -24,7 +24,7 @@ func (publisher *Publisher) PublishNotification(n *notification.Notification) (s
 		return "", false, err
 	}
 	if ok {
-		return n.ID, false, publisher.Draftbox.Draft(n)
+		return n.ID, false, publisher.Draftbox.Save(n)
 	}
 	err = publisher.Notifier.Notify(n)
 	return n.ID, err == nil, err
@@ -33,7 +33,7 @@ func (publisher *Publisher) PublishNotification(n *notification.Notification) (s
 //PublishDraft publish notificaiton by given id.
 //Notification.ErrNotificationIDNotFound will be returned if nid not found.
 func (publisher *Publisher) PublishDraft(nid string) (*notification.Notification, error) {
-	n, err := publisher.Draftbox.Eject(nid)
+	n, err := publisher.Draftbox.Remove(nid)
 	if err != nil {
 		return nil, err
 	}

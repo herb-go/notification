@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -91,3 +92,58 @@ func IsErrNotificationIDNotFound(err error) bool {
 	_, ok := err.(*ErrNotificationIDNotFound)
 	return ok
 }
+
+//ErrConditionNotSupported error rasied when condition not supproted
+type ErrConditionNotSupported struct {
+	Condition string
+}
+
+//Error return error message
+func (e *ErrConditionNotSupported) Error() string {
+	return fmt.Sprintf("notificationqueue: condition [%s] not supported", e.Condition)
+}
+
+//NewErrConditionNotSupported create new ErrConditionNotSupported
+func NewErrConditionNotSupported(condition string) *ErrConditionNotSupported {
+	return &ErrConditionNotSupported{
+		Condition: condition,
+	}
+}
+
+//IsErrConditionNotSupported check if given error is ErrConditionNotSupported
+func IsErrConditionNotSupported(err error) bool {
+	if err == nil {
+		return false
+	}
+	_, ok := err.(*ErrConditionNotSupported)
+	return ok
+}
+
+//ErrInvalidConditionValue error raised when condition value invalid
+type ErrInvalidConditionValue struct {
+	Condition string
+}
+
+//Error return error message
+func (e *ErrInvalidConditionValue) Error() string {
+	return fmt.Sprintf("notificationqueue: condition [%s] value invalid", e.Condition)
+}
+
+//NewErrInvalidConditionValue create new ErrInvalidConditionValue
+func NewErrInvalidConditionValue(condition string) *ErrInvalidConditionValue {
+	return &ErrInvalidConditionValue{
+		Condition: condition,
+	}
+}
+
+//IsErrInvalidConditionValue check if given error is ErrInvalidConditionValue
+func IsErrInvalidConditionValue(err error) bool {
+	if err == nil {
+		return false
+	}
+	_, ok := err.(*ErrInvalidConditionValue)
+	return ok
+}
+
+//ErrStoreFeatureNotSupported error raised when store feature not supported
+var ErrStoreFeatureNotSupported = errors.New("store feature not supported")

@@ -1,17 +1,15 @@
-package notificationqueue
+package notification
 
 import (
 	"strconv"
 	"strings"
-
-	"github.com/herb-go/notification"
 )
 
 //Filter notification filter interface
 type Filter interface {
 	//FilterNotification filter notification with given timestamp
 	//Return if notification is valid
-	FilterNotification(n *notification.Notification, ts int64) (bool, error)
+	FilterNotification(n *Notification, ts int64) (bool, error)
 	//ApplyCondition apply search condition to filter
 	//ErrConditionNotSupported should be returned if condition keyword is not supported
 	ApplyCondition(cond *Condition) error
@@ -65,8 +63,8 @@ func (c *PlainFilter) ApplyCondition(cond *Condition) error {
 
 //FilterNotification filter notification with given timestamp
 //Return if notification is valid
-func (c *PlainFilter) FilterNotification(n *notification.Notification, ts int64) (bool, error) {
-	if c.BatchID != "" && n.Header.Get(notification.HeaderNameBatch) != c.BatchID {
+func (c *PlainFilter) FilterNotification(n *Notification, ts int64) (bool, error) {
+	if c.BatchID != "" && n.Header.Get(HeaderNameBatch) != c.BatchID {
 		return false, nil
 	}
 	if c.NotificationID != "" && n.ID != c.NotificationID {
@@ -75,10 +73,10 @@ func (c *PlainFilter) FilterNotification(n *notification.Notification, ts int64)
 	if c.Delivery != "" && n.Delivery != c.Delivery {
 		return false, nil
 	}
-	if c.Target != "" && n.Header.Get(notification.HeaderNameTarget) != c.Target {
+	if c.Target != "" && n.Header.Get(HeaderNameTarget) != c.Target {
 		return false, nil
 	}
-	if c.Topic != "" && n.Header.Get(notification.HeaderNameTopic) != c.Topic {
+	if c.Topic != "" && n.Header.Get(HeaderNameTopic) != c.Topic {
 		return false, nil
 	}
 	if c.InContent != "" {
