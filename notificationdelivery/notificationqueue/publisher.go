@@ -62,6 +62,11 @@ func (publisher *Publisher) Stop() error {
 
 }
 
+//DraftboxLoader draftbox loader
+func (publisher *Publisher) DraftboxLoader() notification.Store {
+	return publisher.Draftbox
+}
+
 //NewPublisher create new publisher
 func NewPublisher() *Publisher {
 	return &Publisher{

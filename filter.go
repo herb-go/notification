@@ -138,6 +138,8 @@ var PlainFilterSupportedConditions = []string{
 	ConditionInContent,
 	ConditionBeforeTimestamp,
 	ConditionAfterTimestamp,
+	ConditionSender,
+	ConditionExpired,
 }
 
 //ApplyToFilter apply condiitons to filter.
