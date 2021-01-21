@@ -17,3 +17,11 @@ type HasHeaderChecker string
 func (c HasHeaderChecker) Check(n *Notification) (bool, error) {
 	return n.Header.Get(string(c)) != "", nil
 }
+
+var CheckerNever = CheckerFunc(func(n *Notification) (bool, error) {
+	return false, nil
+})
+
+var CheckerAlways = CheckerFunc(func(n *Notification) (bool, error) {
+	return true, nil
+})

@@ -70,7 +70,7 @@ func (publisher *Publisher) DraftboxLoader() notification.Store {
 //NewPublisher create new publisher
 func NewPublisher() *Publisher {
 	return &Publisher{
-		DraftReviewer: CheckerDraftModeHeader,
+		DraftReviewer: notification.CheckerNever,
 		Notifier:      NewNotifier(),
 	}
 }
