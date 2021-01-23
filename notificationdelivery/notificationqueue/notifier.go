@@ -21,10 +21,6 @@ type Notifier struct {
 	OnNotification func(*notification.Notification)
 	//OnReceipt receipt handler
 	OnReceipt func(*Receipt)
-	//OnDeliverTimeout deliver timeout handler
-	OnDeliverTimeout func(*Execution)
-	//OnRetryTooMany retry toomany handler
-	OnRetryTooMany func(*Execution)
 	//OnExecution execution handler
 	OnExecution func(*Execution)
 	//Recover recover handler
@@ -37,6 +33,17 @@ func (notifier *Notifier) SetQueue(q Queue) {
 	notifier.queue = q
 }
 
+//HandleDeliverTimeout deliver timeout handler
+func (notifier *Notifier) HandleDeliverTimeout(e *Execution) {
+	notifier.newReceipt(e, notificationdelivery.DeliveryStatusTimeout, "")
+}
+
+//HandleRetryTooMany retry toomany handler
+func (notifier *Notifier) HandleRetryTooMany(e *Execution) {
+	notifier.newReceipt(e, notificationdelivery.DeliveryStatusRetryTooMany, "")
+
+}
+
 //Queue return notifier queue.
 func (notifier *Notifier) Queue() Queue {
 	return notifier.queue
@@ -45,7 +52,15 @@ func (notifier *Notifier) handleReceipt(r *Receipt) {
 	defer notifier.Recover()
 	notifier.OnReceipt(r)
 }
-
+func (notifier *Notifier) newReceipt(e *Execution, status notificationdelivery.DeliveryStatus, msg string) {
+	eid := e.ExecutionID
+	r := NewReceipt()
+	r.Notification = e.Notification
+	r.ExecutionID = eid
+	r.Status = status
+	r.Message = msg
+	go notifier.handleReceipt(r)
+}
 func (notifier *Notifier) deliver(e *Execution) {
 	defer notifier.Recover()
 	status, msg, err := notifier.deliveryNotification(e.Notification)
@@ -57,18 +72,11 @@ func (notifier *Notifier) deliver(e *Execution) {
 			panic(err)
 		}()
 	}
-	nid := e.Notification.ID
-	eid := e.ExecutionID
-	r := NewReceipt()
-	r.NotificationID = nid
-	r.ExecutionID = eid
-	r.Status = status
-	r.Message = msg
-	go notifier.handleReceipt(r)
-	if status == notificationdelivery.DeliveryStatusFail {
+	notifier.newReceipt(e, status, msg)
+	if notificationdelivery.IsStatusRetryable(status) {
 		return
 	}
-	err = notifier.queue.Remove(nid)
+	err = notifier.queue.Remove(e.Notification.ID)
 	if err != nil {
 		panic(err)
 	}
@@ -140,8 +148,8 @@ func (notifier *Notifier) deliveryNotification(n *notification.Notification) (st
 func (notifier *Notifier) Reset() {
 	notifier.OnNotification = NopNotificationHandler
 	notifier.OnReceipt = NopReceiptHanlder
-	notifier.OnDeliverTimeout = NopExecutionHandler
-	notifier.OnRetryTooMany = NopExecutionHandler
+	// notifier.OnDeliverTimeout = NopExecutionHandler
+	// notifier.OnRetryTooMany = NopExecutionHandler
 	notifier.OnExecution = NopExecutionHandler
 	notifier.IDGenerator = NopIDGenerator
 }

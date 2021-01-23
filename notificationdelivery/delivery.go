@@ -6,17 +6,26 @@ import "github.com/herb-go/notification"
 type DeliveryStatus int64
 
 const (
-	//DeliveryStatusFail stands for delivery fail
+	//DeliveryStatusFail status for delivery fail
 	DeliveryStatusFail = DeliveryStatus(0)
-	//DeliveryStatusSuccess stands for delivery success
+	//DeliveryStatusSuccess status for delivery success
 	DeliveryStatusSuccess = DeliveryStatus(1)
-	//DeliveryStatusAbort stands for delivery abort
+	//DeliveryStatusAbort status for delivery abort
 	DeliveryStatusAbort = DeliveryStatus(2)
-	//DeliveryStatusExpired stands for delivery expired
+	//DeliveryStatusExpired status for delivery expired
 	DeliveryStatusExpired = DeliveryStatus(3)
-	//DeliveryStatusDisabled stands for delivery expired
+	//DeliveryStatusDisabled status for delivery disabled
 	DeliveryStatusDisabled = DeliveryStatus(4)
+	//DeliveryStatusTimeout status for delivery timeout
+	DeliveryStatusTimeout = DeliveryStatus(5)
+	//DeliveryStatusRetryTooMany status for delivery too many
+	DeliveryStatusRetryTooMany = DeliveryStatus(6)
 )
+
+//IsStatusRetryable chech if status retryable
+func IsStatusRetryable(s DeliveryStatus) bool {
+	return s == DeliveryStatusFail || s == DeliveryStatusTimeout
+}
 
 //DeliveryServer delivery server struct
 type DeliveryServer struct {

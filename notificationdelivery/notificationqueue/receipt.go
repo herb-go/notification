@@ -1,11 +1,14 @@
 package notificationqueue
 
-import "github.com/herb-go/notification/notificationdelivery"
+import (
+	"github.com/herb-go/notification"
+	"github.com/herb-go/notification/notificationdelivery"
+)
 
 //Receipt notification receipt struct
 type Receipt struct {
 	//NotificationID notification id
-	NotificationID string
+	Notification *notification.Notification
 	//ExecutionID notification eecution id
 	ExecutionID string
 	//Status delivery status
