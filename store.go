@@ -25,6 +25,14 @@ type Store interface {
 	Remove(id string) (*Notification, error)
 }
 
+//Searchable searchable interface
+type Searchable interface {
+	//Count count store with given search conditions
+	Count(condition []*Condition) (int, error)
+	//SupportedConditions return supported condition keyword list
+	SupportedConditions() ([]string, error)
+}
+
 type NopStore struct{}
 
 //Open open store and return any error if raised

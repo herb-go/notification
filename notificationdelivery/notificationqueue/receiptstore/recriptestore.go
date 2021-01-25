@@ -1,8 +1,6 @@
 package receiptstore
 
 import (
-	"time"
-
 	"github.com/herb-go/notification"
 	"github.com/herb-go/notification/notificationdelivery/notificationqueue"
 )
@@ -25,8 +23,8 @@ type ReceiptStore interface {
 	Count(condition []*notification.Condition) (int, error)
 	//SupportedConditions return supported condition keyword list
 	SupportedConditions() ([]string, error)
-	//LogRetentionPeriod log retention period.
-	RetentionPeriod() (time.Duration, error)
-	//Clear clear outdate log
-	Clear() error
+	//RetentionDays log retention period in day.
+	RetentionDays() (int, error)
+	//Remove remove receipt by given notification id and return removed receipt.
+	Remove(id string) (*notificationqueue.Receipt, error)
 }

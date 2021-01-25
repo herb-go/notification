@@ -9,7 +9,7 @@ import (
 type Receipt struct {
 	//NotificationID notification id
 	Notification *notification.Notification
-	//ExecutionID notification eecution id
+	//ExecutionID notification execution id
 	ExecutionID string
 	//Status delivery status
 	Status notificationdelivery.DeliveryStatus
