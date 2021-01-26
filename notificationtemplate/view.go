@@ -5,5 +5,5 @@ import (
 )
 
 type View interface {
-	Render(Collection) (notification.Content, error)
+	Render(Collection) (*notification.Notification, error)
 }

@@ -1,4 +1,4 @@
-package notificationmessage
+package notificationtemplate
 
 import "strings"
 

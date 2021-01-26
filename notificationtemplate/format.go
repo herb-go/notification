@@ -1,16 +1,12 @@
 package notificationtemplate
 
-import (
-	"github.com/herb-go/notification/notificationmessage"
-)
-
-type Format interface {
+type Converter interface {
 	Convert(string) (interface{}, error)
 }
 
-type Formatter map[string]Format
+type Converters map[string]Converter
 
-func (f *Formatter) FormatModel(m notificationmessage.Model) (Collection, error) {
+func (f *Converters) FormatModel(m Model) (Collection, error) {
 	c := NewCollection()
 	for k, v := range *f {
 		data, err := v.Convert(m.Get(k))
