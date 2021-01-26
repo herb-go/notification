@@ -1,14 +1,16 @@
 package notificationtemplate
 
-type Converter interface {
+type Field interface {
 	Convert(string) (interface{}, error)
 }
 
-type Converters map[string]Converter
+type Topic struct {
+	Fields map[string]Field
+}
 
-func (f *Converters) FormatModel(m Model) (Collection, error) {
+func (t *Topic) ConvertModel(m Model) (Collection, error) {
 	c := NewCollection()
-	for k, v := range *f {
+	for k, v := range t.Fields {
 		data, err := v.Convert(m.Get(k))
 		if err != nil {
 			return nil, err
