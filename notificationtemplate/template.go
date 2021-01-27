@@ -1,16 +1,16 @@
 package notificationtemplate
 
 type Template struct {
-	Delivery string
-	TTL      int
-	Topic    string
-	Header   map[string]string
-	Content  map[string]string
+	Delivery              string
+	TTLInSeconds          int
+	Topic                 string
+	HeaderTemplate        map[string]string
+	ContentHeaderTemplate map[string]string
 }
 
 func NewTemplate() *Template {
 	return &Template{
-		Header:  map[string]string{},
-		Content: map[string]string{},
+		HeaderTemplate:        map[string]string{},
+		ContentHeaderTemplate: map[string]string{},
 	}
 }

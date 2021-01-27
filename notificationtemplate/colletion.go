@@ -2,15 +2,15 @@ package notificationtemplate
 
 import "strings"
 
-type Collection map[string]interface{}
+type Dataset map[string]interface{}
 
-func (c Collection) Set(name string, value interface{}) {
-	c[strings.ToLower(name)] = value
+func (d Dataset) Set(name string, value interface{}) {
+	d[strings.ToLower(name)] = value
 }
-func (c Collection) Get(name string) interface{} {
-	return c[strings.ToLower(name)]
+func (d Dataset) Get(name string) interface{} {
+	return d[strings.ToLower(name)]
 }
 
-func NewCollection() Collection {
-	return Collection{}
+func NewDataset() Dataset {
+	return Dataset{}
 }
