@@ -5,6 +5,6 @@ import (
 )
 
 type View interface {
-	Render(Dataset) (*notification.Notification, error)
+	Render(Model) (*notification.Notification, error)
 	Supported() (directives []string, err error)
 }

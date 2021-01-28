@@ -14,11 +14,6 @@ func (d NullDelivery) DeliveryType() string {
 	return DeliveryNull
 }
 
-//MustEscape delivery escape helper
-func (d NullDelivery) MustEscape(unescaped string) string {
-	return unescaped
-}
-
 //Deliver send give content.
 //Return delivery status and any receipt if returned,and any error if raised.
 func (d NullDelivery) Deliver(notification.Content) (status DeliveryStatus, receipt string, err error) {

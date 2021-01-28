@@ -15,9 +15,6 @@ func TestNull(t *testing.T) {
 		t.Fatal(null)
 	}
 
-	if null.MustEscape("abc") != "abc" {
-		t.Fatal(null)
-	}
 	i, err := null.CheckInvalidContent(notification.NewContent())
 	if len(i) != 0 || err != nil {
 		t.Fatal(i, err)

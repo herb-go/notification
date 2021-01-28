@@ -58,8 +58,6 @@ func NewDeliveryServer() *DeliveryServer {
 type DeliveryDriver interface {
 	//DeliveryType Delivery type
 	DeliveryType() string
-	//MustEscape delivery escape helper
-	MustEscape(string) string
 	//CheckInvalidContent check if given content invalid
 	//Return invalid fields and any error raised
 	CheckInvalidContent(notification.Content) ([]string, error)
