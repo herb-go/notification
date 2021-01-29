@@ -21,6 +21,21 @@ func (c Content) Get(name string) string {
 	return c[strings.ToLower(name)]
 }
 
+//Length return ccntent length
+func (c Content) Length() int {
+	return len(c)
+}
+
+//Range range over content with given function.
+//Stop range if function return false,
+func (c Content) Range(f func(string, string) bool) {
+	for k := range c {
+		if !f(k, c[k]) {
+			return
+		}
+	}
+}
+
 //MustJSON must convent content to json format
 //Panic if any error raised
 func (c Content) MustJSON() string {
