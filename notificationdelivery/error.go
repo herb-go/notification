@@ -9,7 +9,7 @@ type ErrDeliveryNotFound struct {
 
 //Error return error message
 func (e *ErrDeliveryNotFound) Error() string {
-	return fmt.Sprintf("notification: delivery not found [%s]", e.Delivery)
+	return fmt.Sprintf("notification delivery: delivery not found [%s]", e.Delivery)
 }
 
 //NewErrDeliveryNotFound create new ErrDeliveryNotFound

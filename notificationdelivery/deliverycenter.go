@@ -49,7 +49,7 @@ func NewPlainDeliveryCenter() PlainDeliveryCenter {
 	return PlainDeliveryCenter{}
 }
 
-//AtomicDeliveryCenter delivery center which use atomic.Value to  implement concurrently update
+//AtomicDeliveryCenter delivery center which use atomic.Value to  implement concurrently update.
 type AtomicDeliveryCenter struct {
 	data atomic.Value
 }
@@ -59,7 +59,7 @@ func (c *AtomicDeliveryCenter) SetDeliveryCenter(pc DeliveryCenter) {
 	c.data.Store(pc)
 }
 
-//DeliveryCenter returm delivery center actually used.
+//DeliveryCenter return delivery center actually used.
 func (c *AtomicDeliveryCenter) DeliveryCenter() DeliveryCenter {
 	return c.data.Load().(DeliveryCenter)
 }
