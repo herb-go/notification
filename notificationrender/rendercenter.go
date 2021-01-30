@@ -16,10 +16,15 @@ type PlainRenderCenter map[string]Renderer
 //ErrRendererNotFound should be returned if given name not found.
 func (c *PlainRenderCenter) Get(name string) (Renderer, error) {
 	r, ok := (*c)[name]
-	if ok {
+	if !ok {
 		return nil, NewErrRendererNotFound(name)
 	}
 	return r, nil
+}
+
+//Set set renderer with given name.
+func (c *PlainRenderCenter) Set(name string, r Renderer) {
+	(*c)[name] = r
 }
 
 //NewRenderCenter create new plain render center
