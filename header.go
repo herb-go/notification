@@ -35,6 +35,21 @@ func (h Header) Get(name string) string {
 	return h[strings.ToLower(name)]
 }
 
+//Length return header length
+func (h Header) Length() int {
+	return len(h)
+}
+
+//Range range over header with given function.
+//Stop range if function return false,
+func (h Header) Range(f func(string, string) bool) {
+	for k := range h {
+		if !f(k, h[k]) {
+			return
+		}
+	}
+}
+
 //String convert header to urlencoded format string
 func (h Header) String() string {
 	v := url.Values{}
