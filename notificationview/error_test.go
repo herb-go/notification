@@ -1,4 +1,4 @@
-package notificationrender
+package notificationview
 
 import (
 	"strings"
@@ -9,12 +9,12 @@ func TestError(t *testing.T) {
 	var err error
 	var ok bool
 	var msg string
-	err = NewErrRendererNotFound("rid")
-	ok = IsErrRendererNotFound(nil)
+	err = NewErrViewNotFound("rid")
+	ok = IsErrViewNotFound(nil)
 	if ok {
 		t.Fatal(ok)
 	}
-	ok = IsErrRendererNotFound(err)
+	ok = IsErrViewNotFound(err)
 	if !ok {
 		t.Fatal(ok)
 	}
