@@ -9,7 +9,7 @@ import (
 type nopRender struct{}
 
 //Render render notification with given data
-func (r nopRender) Render(map[string]string) (*notification.Notification, error) {
+func (r nopRender) Render(notification.Message) (*notification.Notification, error) {
 	return nil, nil
 }
 
