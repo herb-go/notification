@@ -1,6 +1,7 @@
 package notificationview
 
 import (
+	"encoding/json"
 	"strings"
 )
 
@@ -12,6 +13,18 @@ type Message map[string]string
 //Name will be converted to lower
 func (m Message) Set(name string, value string) {
 	m[strings.ToLower(name)] = value
+}
+
+//MustSetAsJSON set give value as json with given name to message
+//Name will be converted to lower
+//Panic if marshal fail
+func (m Message) MustSetAsJSON(name string, v interface{}) {
+	bs, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	m.Set(name, string(bs))
+
 }
 
 //Get get give value with given name from message
