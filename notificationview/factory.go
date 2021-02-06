@@ -61,3 +61,12 @@ func NewView(name string, loader func(v interface{}) error) (View, error) {
 	}
 	return factoryi(loader)
 }
+
+//RegisterBuiltinFactories register builtin factories
+func RegisterBuiltinFactories() {
+	Register(CloneViewFactoryName, CloneViewFactory)
+}
+
+func init() {
+	RegisterBuiltinFactories()
+}
