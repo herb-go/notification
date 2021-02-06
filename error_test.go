@@ -12,7 +12,7 @@ func TestError(t *testing.T) {
 	var err error
 	var ok bool
 	var msg string
-	ok = IsInvalidContentError(err)
+	ok = IsErrInvalidContent(err)
 	if ok {
 		t.Fatal(ok)
 	}
@@ -20,7 +20,7 @@ func TestError(t *testing.T) {
 	c.Set("field1", "")
 	c.Set("field3", "value3")
 	err = CheckRequiredContentError(c, []string{"field1", "field2"})
-	ok = IsInvalidContentError(err)
+	ok = IsErrInvalidContent(err)
 	if !ok {
 		t.Fatal(ok)
 	}
@@ -28,7 +28,7 @@ func TestError(t *testing.T) {
 	if !strings.Contains(msg, "field1") || !strings.Contains(msg, "field2") || !strings.Contains(msg, "required") {
 		t.Fatal(msg)
 	}
-	ok = IsInvalidContentError(errFoo)
+	ok = IsErrInvalidContent(errFoo)
 	if ok {
 		t.Fatal(ok)
 	}
@@ -36,7 +36,7 @@ func TestError(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ok = IsInvalidContentError(err)
+	ok = IsErrInvalidContent(err)
 	if ok {
 		t.Fatal(ok)
 	}

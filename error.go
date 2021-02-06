@@ -6,42 +6,36 @@ import (
 	"strings"
 )
 
-//Error notofication error struct
-type Error struct {
-	//Notofication error no
-	Errno int32
-	//Err real error
-	Err error
+var InvalidContentTypeRequired = "required"
+
+type ErrInvalidContent struct {
+	Fields []string
+	Type   string
 }
 
-//Error return error string
-func (e *Error) Error() string {
-	return e.Err.Error()
+func (e *ErrInvalidContent) Error() string {
+	return fmt.Sprintf("notification: content invalid [ %s ] %s", strings.Join(e.Fields, ","), e.Type)
 }
 
-//NewError create error
-func NewError() *Error {
-	return &Error{}
+func NewErrInvalidContent(t string, fields ...string) *ErrInvalidContent {
+	return &ErrInvalidContent{
+		Fields: fields,
+		Type:   t,
+	}
 }
 
 //NewRequiredContentError create required content error with given fields.
-func NewRequiredContentError(fields []string) *Error {
-	e := NewError()
-	e.Errno = ErrnoInvalidContent
-	e.Err = fmt.Errorf("notification: content [%s] required", strings.Join(fields, " , "))
-	return e
+func NewRequiredContentError(fields []string) *ErrInvalidContent {
+	return NewErrInvalidContent(InvalidContentTypeRequired, fields...)
 }
 
-//IsInvalidContentError check if given error is invalid content error.
-func IsInvalidContentError(err error) bool {
+//IsErrInvalidContent check if given error is invalid content error.
+func IsErrInvalidContent(err error) bool {
 	if err == nil {
 		return false
 	}
-	e, ok := err.(*Error)
-	if !ok {
-		return false
-	}
-	return e.Errno == ErrnoInvalidContent
+	_, ok := err.(*ErrInvalidContent)
+	return ok
 }
 
 //CheckRequiredContent check if fields in content.
