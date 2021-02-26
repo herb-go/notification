@@ -26,6 +26,12 @@ func (d NullDelivery) CheckInvalidContent(notification.Content) ([]string, error
 	return []string{}, nil
 }
 
+//ContentFields return content fields
+//Return invalid fields and any error raised
+func (d NullDelivery) ContentFields() []*Field {
+	return nil
+}
+
 //NullFactory null factory
 var NullFactory = func(loader func(v interface{}) error) (DeliveryDriver, error) {
 	return NullDelivery{}, nil

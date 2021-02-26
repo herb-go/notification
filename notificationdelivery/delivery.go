@@ -64,4 +64,6 @@ type DeliveryDriver interface {
 	//Deliver send give content.
 	//Return delivery status and any receipt if returned,and any error if raised.
 	Deliver(notification.Content) (status DeliveryStatus, receipt string, err error)
+	//ContentFields return content fields
+	ContentFields() []*Field
 }
