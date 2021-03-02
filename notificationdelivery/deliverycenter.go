@@ -1,6 +1,7 @@
 package notificationdelivery
 
 import (
+	"sort"
 	"sync/atomic"
 	"time"
 
@@ -21,10 +22,17 @@ type DeliveryCenter interface {
 type PlainDeliveryCenter map[string]*DeliveryServer
 
 //List all delivery servers in delivery center and any error if raised.
+//Result will be sorted by delivery.
 func (c PlainDeliveryCenter) List() ([]*DeliveryServer, error) {
-	result := []*DeliveryServer{}
+	var keys = make([]string, 0, len(c))
 	for k := range c {
-		result = append(result, c[k])
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	var result = make([]*DeliveryServer, len(keys))
+
+	for k, v := range keys {
+		result[k] = c[v]
 	}
 	return result, nil
 }
